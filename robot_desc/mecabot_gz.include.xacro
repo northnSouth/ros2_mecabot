@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+
+  <!-- MATERIALS -->
+  <material name="grey">
+    <color rgba="0.35 0.35 0.35 1"/>
+  </material>
+
+  <material name="silver">
+    <color rgba="0.86 0.86 0.86 1"/>
+  </material>
+
+  <!-- MACROS -->
+  <xacro:macro name="inertial_box" params="mass x y z *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}" />
+      <inertia ixx="${(1/12) * mass * (y*y+z*z)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass * (x*x+z*z)}" iyz="0.0"
+              izz="${(1/12) * mass * (x*x+y*y)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- MECANUM WHEEL GENERATION -->
+  <xacro:property name="mecanum_radius" value="0.15"/>
+  <xacro:macro name="gen_mecanum_wheel" params="name *material direction">
+
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <mesh
+            filename="file://$(find mecabot_gz)/../../../../robot_desc/mesh/mecanum_${direction}.STL"
+            scale="${mecanum_radius * 2 / 100} ${mecanum_radius * 2 / 100} ${mecanum_radius * 2 / 100}"
+          /> <!-- Scale mesh to radius -->
+        </geometry>
+        <xacro:insert_block name="material"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <sphere radius="${mecanum_radius}"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <!-- Values from Gazebo Harmonic mecanum_drive.sdf -->
+        <mass value="1"/>
+        <inertia 
+          ixx="0.072916"
+          ixy="0"
+          ixz="0"
+          iyy="0.072916"
+          iyz="0"
+          izz="0.0625"
+        />
+      </inertial>
+    </link>
+
+    <gazebo reference="${name}_link">
+      <!-- Implemented this way to include the expressed_in attribute -->
+      <collision>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>1.5</mu>
+              <mu2>0</mu2>
+              <xacro:if value="${direction == 'left'}">
+                <fdir1 gz:expressed_in="base_link">1 -1 0</fdir1>
+              </xacro:if>
+              <xacro:if value="${direction == 'right'}">
+                <fdir1 gz:expressed_in="base_link">1 1 0</fdir1>
+              </xacro:if>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </gazebo>
+    
+  </xacro:macro>
+
+  <!-- OMNI WHEEL GENERATION -->
+  <xacro:property name="omni_radius" value="0.1"/>
+  <xacro:macro name="gen_omni_wheel" params="name *material">
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="-${pi/2} 0 0"/>
+        <geometry>
+          <mesh
+            filename="file://$(find mecabot_gz)/../../../../robot_desc/mesh/omni_wheel.stl"
+            scale="${omni_radius / 5} ${omni_radius / 5} ${omni_radius / 5}"
+          /> <!-- Scale mesh to radius -->
+        </geometry>
+        <xacro:insert_block name="material"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <sphere radius="${omni_radius}"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <!-- Values are fine tuned to achieve free wheel behavior of suspensed caster -->
+        <mass value="0.25"/>
+        <inertia 
+          ixx="0.000072"
+          ixy="0"
+          ixz="0"
+          iyy="0.000072"
+          iyz="0"
+          izz="0.000062"
+        />
+      </inertial>
+    </link>
+
+    <gazebo reference="${name}_link">
+      <!-- Implemented this way to include the expressed_in attribute -->
+      <collision>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>0.2</mu>
+              <mu2>0</mu2>
+              <fdir1>1 0 0</fdir1>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

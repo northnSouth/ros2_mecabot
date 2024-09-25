@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<robot name="mecabot_gz" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="mecabot_gz.include.xacro"/>
+
+  <!-- BODY STARTS HERE -->
+  <link name="base_link" >
+    <xacro:property name="base_link_x" value="1"/>
+    <xacro:property name="base_link_y" value="0.7"/>
+    <xacro:property name="base_link_z" value="0.30"/>
+
+    <visual>
+      <origin xyz="0 0 ${base_link_z / 4}"/>
+      <geometry>
+        <box size="${base_link_x} ${base_link_y} ${base_link_z}"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${base_link_z / 4}"/>
+      <geometry>
+        <box size="${base_link_x} ${base_link_y} ${base_link_z}"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_box mass="5" x="${base_link_x}" y="${base_link_y}" z="${base_link_z}">
+      <origin />
+    </xacro:inertial_box>
+  </link>
+
+  <!-- GENERATE MECANUM WHEELS -->
+  <xacro:gen_mecanum_wheel name="front_left_mecanum" direction="left">
+    <material name="grey"/>
+  </xacro:gen_mecanum_wheel>
+  <xacro:gen_mecanum_wheel name="front_right_mecanum" direction="right">
+    <material name="grey"/>
+  </xacro:gen_mecanum_wheel>
+  <xacro:gen_mecanum_wheel name="rear_right_mecanum" direction="left">
+    <material name="grey"/>
+  </xacro:gen_mecanum_wheel>
+  <xacro:gen_mecanum_wheel name="rear_left_mecanum" direction="right">
+    <material name="grey"/>
+  </xacro:gen_mecanum_wheel>
+
+  <!-- GENERATE OMNI WHEELS -->
+  <xacro:gen_omni_wheel name="y_front_omni">
+    <material name="grey"/>
+  </xacro:gen_omni_wheel>
+  <xacro:gen_omni_wheel name="y_rear_omni">
+    <material name="grey"/>
+  </xacro:gen_omni_wheel>
+  <xacro:gen_omni_wheel name="x_right_omni">
+    <material name="grey"/>
+  </xacro:gen_omni_wheel>
+  <xacro:gen_omni_wheel name="x_left_omni">
+    <material name="grey"/>
+  </xacro:gen_omni_wheel>
+
+  <!-- OMNI WHEEL JOINTS -->
+  <xacro:property name="omni_gap" value="0.15"/>
+  <xacro:property name="omni_joint_friction" value="0.1"/>
+  <xacro:property name="omni_joint_damping" value="0"/>
+  <joint name="y_front_omni_joint" type="continuous">
+    <origin xyz="${omni_gap} 0 ${omni_radius - mecanum_radius}" rpy="0 0 -${pi / 2}"/>
+    <parent link="base_link"/>
+    <child link="y_front_omni_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
+  </joint>
+
+  <joint name="x_right_omni_joint" type="continuous">
+    <origin xyz="0 ${omni_gap} ${omni_radius - mecanum_radius}" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="x_right_omni_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
+  </joint>
+
+  <joint name="x_left_omni_joint" type="continuous">
+    <origin xyz="0 -${omni_gap} ${omni_radius - mecanum_radius}" rpy="0 0 ${pi}"/>
+    <parent link="base_link"/>
+    <child link="x_left_omni_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
+  </joint>
+
+  <joint name="y_rear_omni_joint" type="continuous">
+    <origin xyz="-${omni_gap} 0 ${omni_radius - mecanum_radius}" rpy="0 0 ${pi / 2}"/>
+    <parent link="base_link"/>
+    <child link="y_rear_omni_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
+  </joint>
+
+  <!-- MECANUM WHEEL JOINTS -->
+  <xacro:property name="mecanum_joint_friction" value="0"/>
+  <joint name="front_left_mecanum_joint" type="continuous">
+    <origin xyz="${base_link_x / 2 * 0.625} ${base_link_y / 2 + mecanum_radius / 2} 0"/>
+    <parent link="base_link"/>
+    <child link="front_left_mecanum_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics friction="${mecanum_joint_friction}"/>
+  </joint>
+
+  <joint name="front_right_mecanum_joint" type="continuous">
+    <origin xyz="${base_link_x / 2 * 0.625} -${base_link_y / 2 + mecanum_radius / 2} 0"/>
+    <parent link="base_link"/>
+    <child link="front_right_mecanum_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics friction="${mecanum_joint_friction}"/>
+  </joint>
+
+  <joint name="rear_right_mecanum_joint" type="continuous">
+    <origin xyz="-${base_link_x / 2 * 0.625} -${base_link_y / 2 + mecanum_radius / 2} 0"/>
+    <parent link="base_link"/>
+    <child link="rear_right_mecanum_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics friction="${mecanum_joint_friction}"/>
+  </joint>
+
+  <joint name="rear_left_mecanum_joint" type="continuous">
+    <origin xyz="-${base_link_x / 2 * 0.625} ${base_link_y / 2 + mecanum_radius / 2} 0"/>
+    <parent link="base_link"/>
+    <child link="rear_left_mecanum_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics friction="${mecanum_joint_friction}"/>
+  </joint>
+
+  <!-- GAZEBO PLUGINS -->
+  <gazebo>
+    <plugin
+      filename="gz-sim-mecanum-drive-system"
+      name="gz::sim::systems::MecanumDrive">
+      <front_left_joint>front_left_mecanum_joint</front_left_joint>
+      <front_right_joint>front_right_mecanum_joint</front_right_joint>
+      <back_left_joint>rear_left_mecanum_joint</back_left_joint>
+      <back_right_joint>rear_right_mecanum_joint</back_right_joint>
+      <wheel_separation>${base_link_y + mecanum_radius}</wheel_separation>
+      <wheelbase>${base_link_x / 2 * 1.25}</wheelbase>
+      <wheel_radius>${mecanum_radius}</wheel_radius>
+      <topic>/cmd_vel</topic>
+      <min_acceleration>-3</min_acceleration>
+      <max_acceleration>3</max_acceleration>
+    </plugin>
+    <plugin
+      filename="gz-sim-joint-state-publisher-system"
+      name="gz::sim::systems::JointStatePublisher">
+      <topic>/joint_states</topic>
+    </plugin>
+
+  </gazebo>
+
+</robot>
