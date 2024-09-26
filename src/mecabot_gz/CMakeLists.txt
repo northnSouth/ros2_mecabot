@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -18,6 +19,7 @@ add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
 ament_target_dependencies(
   encoder_to_odometry
   rclcpp
+  rosgraph_msgs
   sensor_msgs
   geometry_msgs
   tf2_ros
@@ -38,8 +40,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-install(
-  TARGETS encoder_to_odometry
-  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS
+  encoder_to_odometry
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install (DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_package()

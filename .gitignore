@@ -2,3 +2,4 @@ build
 install
 log
 .vscode
+src/mecabot_gz/launch/__pycache__

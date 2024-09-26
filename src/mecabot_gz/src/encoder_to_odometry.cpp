@@ -5,14 +5,11 @@
 // Messages
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "geometry_msgs/msg/transform.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2/LinearMath/Quaternion.h"
 
 bool hasSuffix (std::string const&, std::string const&); // Check if a string has a certain suffix
 bool hasPrefix (std::string const&, std::string const&); // Check if a string has a certain prefix
-
-
 
 
 // Node class
@@ -22,36 +19,28 @@ class EncoderToOdometry : public rclcpp::Node
     EncoderToOdometry() : Node("encoder_to_odometry")
     {
       tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-      encoder_states_subscriber = this->create_subscription<sensor_msgs::msg::JointState>
-      (
-        "/joint_states", 10,
-
-
-        // Callback
-        [this](sensor_msgs::msg::JointState::UniquePtr states) -> void
-        {
+      auto jointStatesCallback =
+        [this](sensor_msgs::msg::JointState::UniquePtr states) -> void {
           for (long unsigned int i = 0; i < states->name.size(); i++) {
-            const double enc_to_m {states->position[i] * 0.1}; // convert rotation angle to distance traveled;
-            
+
+            const double enc_to_m {states->position[i] * 0.1}; // 0.1 is rotation angle to distance
             if (hasSuffix(states->name[i], "omni_joint")) {
+
+              // Convert rotation angle to distance traveled
               switch (states->name[i][4]) {
+
                 case 'f': // x_left
-                  x_left = enc_to_m;
-                  break;
+                  x_left = enc_to_m; break;
                 case 'g': // x_right
-                  x_right = enc_to_m;
-                  break;
+                  x_right = enc_to_m; break;
                 case 'o': // y_front
-                  y_front = enc_to_m;
-                  break;
+                  y_front = enc_to_m; break;
                 case 'a': // y_rear
-                  y_rear = enc_to_m;
-                  break;
+                  y_rear = enc_to_m; break;
+
               }
             }
           }
-
-
 
 
           // ODOMETRY
@@ -73,8 +62,6 @@ class EncoderToOdometry : public rclcpp::Node
           field_coords.y += local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
 
 
-
-
           // TRANSFORM MESSAGE BROADCASTER
           geometry_msgs::msg::TransformStamped tf_stamped;
           tf_stamped.header.stamp = states->header.stamp;
@@ -87,9 +74,6 @@ class EncoderToOdometry : public rclcpp::Node
 
           tf2::Quaternion quater;
           quater.setRPY(0, 0, field_coords.z);
-          RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
-          RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
-          RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
           tf_stamped.transform.rotation.z = quater.z();
           tf_stamped.transform.rotation.y = quater.y();
           tf_stamped.transform.rotation.x = quater.x();
@@ -97,16 +81,17 @@ class EncoderToOdometry : public rclcpp::Node
 
           tf_broadcaster->sendTransform(tf_stamped);
 
+          RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
+          RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
+          RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
+
           // Save encoder readings for next loop
           old_x_left = x_left;
           old_x_right = x_right;
           old_y_front = y_front;
+        };
 
-
-
-
-        }
-      );
+      encoder_states_subscriber = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 10, jointStatesCallback);
     }
 
   private:
