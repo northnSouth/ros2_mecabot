@@ -46,14 +46,14 @@
 
       <inertial>
         <!-- Values from Gazebo Harmonic mecanum_drive.sdf -->
-        <mass value="1"/>
+        <mass value="0.5"/>
         <inertia 
-          ixx="0.072916"
+          ixx="0.036458"
           ixy="0"
           ixz="0"
-          iyy="0.072916"
+          iyy="0.036458"
           iyz="0"
-          izz="0.0625"
+          izz="0.03125"
         />
       </inertial>
     </link>
@@ -68,7 +68,7 @@
           <friction>
             <ode>
               <mu>1.5</mu>
-              <mu2>0</mu2>
+              <mu2>0.5</mu2>
               <xacro:if value="${direction == 'left'}">
                 <fdir1 gz:expressed_in="base_link">1 -1 0</fdir1>
               </xacro:if>

@@ -24,7 +24,7 @@
       </geometry>
     </collision>
 
-    <xacro:inertial_box mass="5" x="${base_link_x}" y="${base_link_y}" z="${base_link_z}">
+    <xacro:inertial_box mass="3" x="${base_link_x}" y="${base_link_y}" z="${base_link_z}">
       <origin />
     </xacro:inertial_box>
   </link>

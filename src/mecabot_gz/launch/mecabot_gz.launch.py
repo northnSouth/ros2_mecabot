@@ -81,15 +81,15 @@ def generate_launch_description():
     ros_gz_bridge,
     sim_time_forward,
     TimerAction(
-      period=2.0,
+      period=3.0,
       actions=[gazebo]
     ),
     TimerAction(
-      period=5.0,
+      period=6.0,
       actions=[robot_state_publisher]
     ),
     TimerAction(
-      period=6.0,
+      period=7.0,
       actions=[
         spawner,
         rviz2,
