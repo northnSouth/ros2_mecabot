@@ -56,10 +56,11 @@ class EncoderToOdometry : public rclcpp::Node
           local_coords_update.z = (delta_x2 - delta_x1) / (enc_x_to_origin * 2); 
           local_coords_update.y = delta_y - enc_y_to_origin * local_coords_update.z;
 
-          // Adding local coordinates update to field coordinates
+          // Applying local coordinates update to field coordinates
+          // Why x and y is decreased? It transformed backwards idk why. Too bad!
           field_coords.z += local_coords_update.z;
-          field_coords.x += local_coords_update.x * cos(field_coords.z) - local_coords_update.y * sin(field_coords.z);
-          field_coords.y += local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
+          field_coords.x -= local_coords_update.x * cos(field_coords.z) - local_coords_update.y * sin(field_coords.z);
+          field_coords.y -= local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
 
 
           // TRANSFORM MESSAGE BROADCASTER
