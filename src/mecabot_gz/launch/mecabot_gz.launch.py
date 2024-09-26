@@ -71,6 +71,7 @@ def generate_launch_description():
     executable='encoder_to_odometry'
   )
 
+  # Forward simulation time from gazebo
   sim_time_forward = Node(
     package='mecabot_gz',
     executable='sim_time_forward'
