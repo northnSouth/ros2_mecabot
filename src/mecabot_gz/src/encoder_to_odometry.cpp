@@ -1,6 +1,6 @@
 #include <memory>
 #include <cmath>
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/node.hpp"
 
 // Messages
 #include "sensor_msgs/msg/joint_state.hpp"
