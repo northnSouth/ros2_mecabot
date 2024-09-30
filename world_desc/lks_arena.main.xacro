@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<robot name="mecabot_gz" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    Not made to be maintainable :)
+    all values are 3x the actual map, and mass is just approximation
+  -->
+
+  <xacro:include filename="lks_arena.include.xacro"/>
+
+  <link name="base">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="12 6 ${plank_thick}"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="12 6 ${plank_thick}"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_box mass="24" x="12" y="6" z="${plank_thick}">
+      <origin xyz="0 0 0"/>
+    </xacro:inertial_box>
+
+  </link>
+
+  <gazebo reference="base">
+      <material>Gazebo/White</material>
+    </gazebo>
+  
+  <xacro:wall_link name="wall_2000_0" length="6" mass="6"/>
+  <xacro:wall_link name="wall_2000_1" length="6" mass="6"/>
+  <xacro:wall_link name="wall_4000_0" length="12" mass="12"/>
+  <xacro:wall_link name="wall_4000_1" length="12" mass="12"/>
+  <xacro:wall_link name="wall_500_0" length="1.5" mass="1.5"/>
+  <xacro:wall_link name="wall_500_1" length="1.5" mass="1.5"/>
+  <xacro:wall_link name="wall_250_0" length="0.75" mass="0.75"/>
+  <xacro:wall_link name="wall_250_1" length="0.75" mass="0.75"/>
+  <xacro:wall_link name="wall_750_0" length="2.25" mass="2.25"/>
+
+  <xacro:wall_joint wall="wall_2000_0">
+    <origin xyz="${plank_thick / 2 + 6} 0 ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_2000_1">
+    <origin xyz="${-plank_thick / 2 - 6} 0 ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_4000_0">
+    <origin xyz="0 ${-plank_thick / 2 - 3} ${wall_height / 2 + 0.027}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_4000_1">
+    <origin xyz="0 ${plank_thick / 2 + 3} ${wall_height / 2 + 0.027}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_500_0">
+    <origin xyz="${6 - 1.8} ${-3 + 0.75} ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_500_1">
+    <origin xyz="${-6 + 0.75} 0.75 ${wall_height / 2 + 0.027}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_250_0">
+    <origin xyz="${-6 + 4.446} ${-3 + 0.375} ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_250_1">
+    <origin xyz="${-6 + 5.121} 0.75 ${wall_height / 2 + 0.027}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="wall_750_0">
+    <origin xyz="${-6 + 5.121} ${0.75 + 1.125} ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+</robot>

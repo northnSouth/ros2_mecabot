@@ -6,6 +6,7 @@ from launch.actions import TimerAction # Launch delay timer
 from ament_index_python import get_package_share_directory # Get package directory
 import os # Joining paths
 import xacro # XACRO utilities
+import math # Duh
 
 def generate_launch_description():
 
@@ -37,14 +38,35 @@ def generate_launch_description():
   )
 
   # Spawn robot in Gazebo from /robot_description
-  spawner = Node(
+  bot_spawner = Node(
     package='ros_gz_sim',
     executable='create',
     parameters=[{
       'name': 'mecabot_gz',
       'world': 'empty',
       'topic': '/robot_description',
-      'z': 0.15
+      'x': 5.25,
+      'y': -2.3,
+      'z': 0.2,
+      'Y': math.pi / 2,
+    }]
+  )
+
+  # Read arena xacro file
+  arena_desc = xacro.process_file(
+    os.path.join(get_package_share_directory('mecabot_gz'), 
+                '../../../../world_desc/lks_arena.main.xacro')
+  ).toprettyxml(indent='  ')
+
+  # Spawn arena in Gazebo from file
+  arena_spawner = Node(
+    package='ros_gz_sim',
+    executable='create',
+    parameters=[{
+      'name': 'arena',
+      'world': 'empty',
+      'string': arena_desc,
+      'z': 0.018
     }]
   )
 
@@ -81,7 +103,7 @@ def generate_launch_description():
     ros_gz_bridge,
     sim_time_forward,
     TimerAction(
-      period=2.0,
+      period=3.0,
       actions=[gazebo]
     ),
     TimerAction(
@@ -90,8 +112,12 @@ def generate_launch_description():
     ),
     TimerAction(
       period=7.0,
+      actions=[arena_spawner]
+    ),
+    TimerAction(
+      period=10.0,
       actions=[
-        spawner,
+        bot_spawner,
         rviz2,
         enc_to_odom
       ]

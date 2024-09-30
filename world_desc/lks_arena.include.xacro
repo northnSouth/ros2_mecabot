@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<robot name="mecabot_gz" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="plank_thick" value="0.054"/>
+  <xacro:property name="wall_height" value="0.6"/>
+
+  <!-- BOX INERTIA MACRO -->
+  <xacro:macro name="inertial_box" params="mass x y z *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}" />
+      <inertia ixx="${(1/12) * mass * (y*y+z*z)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass * (x*x+z*z)}" iyz="0.0"
+              izz="${(1/12) * mass * (x*x+y*y)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- WALL GENERATION -->
+  <xacro:macro name="wall_link" params="name length mass">
+    <link name="${name}">
+
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="${length} ${plank_thick} ${wall_height}"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="${length} ${plank_thick} ${wall_height}"/>
+        </geometry>  
+      </collision>
+
+      <xacro:inertial_box mass="${mass}" x="${length}" y="${plank_thick}" z="${wall_height}">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+    <gazebo reference="${name}">
+      <material>Gazebo/White</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- OBJECT-BASE JOINT GENERATION -->
+  <xacro:macro name="wall_joint" params="wall *origin">
+    <joint name="base_${wall}_joint" type="fixed">
+
+      <xacro:insert_block name="origin"/>
+      <parent link="base"/>
+      <child link="${wall}"/>
+    
+    </joint>
+  </xacro:macro>
+
+</robot>
