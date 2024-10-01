@@ -46,6 +46,27 @@
   <xacro:wall_link name="wall_250_1" length="0.75" mass="0.75"/>
   <xacro:wall_link name="wall_750_0" length="2.25" mass="2.25"/>
 
+  <xacro:cont_box name="cont_box1"/>
+  <xacro:cont_box name="cont_box2"/>
+  <xacro:cont_box name="cont_box3"/>
+  <xacro:cont_box name="cont_box4"/>
+  <xacro:cont_box name="cont_box5"/>
+  <xacro:cont_box name="cont_box6"/>
+  <xacro:cont_box name="cont_box7"/>
+  <xacro:cont_box name="cont_box8"/>
+  <xacro:cont_box name="cont_box9"/>
+  <xacro:cont_box name="cont_box10"/>
+  <xacro:cont_box name="cont_box11"/>
+  <xacro:cont_box name="cont_box12"/>
+  <xacro:cont_box name="cont_box13"/>
+  <xacro:cont_box name="cont_box14"/>
+  <xacro:cont_box name="cont_box15"/>
+  <xacro:cont_box name="cont_box16"/>
+  <xacro:cont_box name="cont_box17"/>
+  <xacro:cont_box name="cont_box18"/>
+  <xacro:cont_box name="cont_box19"/>
+  <xacro:cont_box name="cont_box20"/>
+
   <xacro:wall_joint wall="wall_2000_0">
     <origin xyz="${plank_thick / 2 + 6} 0 ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
   </xacro:wall_joint>
@@ -81,5 +102,143 @@
   <xacro:wall_joint wall="wall_750_0">
     <origin xyz="${-6 + 5.121} ${0.75 + 1.125} ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
   </xacro:wall_joint>
+
+
+  <xacro:cont_box_4 
+    name0="cont_box1" 
+    name1="cont_box2"
+    name2="cont_box3"
+    name3="cont_box4"
+    x="1.875"
+    y="0.75"
+  />
+
+  <xacro:cont_box_4
+    name0="cont_box5"
+    name1="cont_box6"
+    name2="cont_box7"
+    name3="cont_box8"
+    x="${1.875 + 2.379 + 0.6 + 0.15}"
+    y="1.575"
+  />
+
+  <xacro:cont_box_2 
+    name0="cont_box9"
+    name1="cont_box10"
+    x="${1.8 + 0.054 + 2.271}"
+    y="${5.85 - 0.3}"
+  />
+
+  <xacro:cont_box_2 
+    name0="cont_box11"
+    name1="cont_box12"
+    x="${1.8 + 0.054 + 2.271 + 0.6 + 0.15 + 1.125}"
+    y="${5.85 - 0.3}"
+  />
+
+  <xacro:cont_box_4
+    name0="cont_box13"
+    name1="cont_box14"
+    name2="cont_box15"
+    name3="cont_box16"
+    x="${1.8 + 0.054 + 2.271 + 0.6 * 2 + 0.15 * 2 + 1.125 + 0.75 + 0.054 + 1.821}"
+    y="${6 - 0.75 - 0.6 - 0.15}"
+  />
+
+    <xacro:cont_box_2 
+    name0="cont_box17"
+    name1="cont_box18"
+    x="${1.8 + 0.054 + 2.271 + 0.6 * 2 + 0.15 * 2 + 1.125 + 0.75 + 0.054 + 1.821}"
+    y="${6 - 0.75 - 0.9 - 0.15 * 2}"
+  />
+
+  <xacro:wall_joint wall="cont_box19">
+    <origin xyz="${6 - (1.8 + 0.054 + 0.15) - 0.15} ${3 - (6 - 0.75 - 0.6 - 0.15) - 0.3 - 0.3} ${0.15 + 0.027}"/>
+  </xacro:wall_joint>
+
+  <xacro:wall_joint wall="cont_box20">
+    <origin xyz="${6 - (1.8 + 0.054 + 0.15) - 0.15} ${3 - (6 - 0.75 - 0.6 - 0.15) - 0.15} ${0.15 + 0.027}"/>
+  </xacro:wall_joint>
+
+
+  <xacro:line_to_obj obj="cont_box1" line="box1_line">
+    <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box2" line="box2_line">
+    <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box3" line="box3_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box4" line="box4_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box5" line="box5_line">
+    <origin xyz="0 -${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box6" line="box6_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box7" line="box7_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box8" line="box8_line">
+    <origin xyz="0 -${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box9" line="box9_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box10" line="box10_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box11" line="box11_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box12" line="box12_line">
+    <origin xyz="0 ${0.225 + 0.15} -0.15" rpy="0 0 ${pi / 2}"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box13" line="box13_line">
+    <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box14" line="box14_line">
+    <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box15" line="box15_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box16" line="box16_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box17" line="box17_line">
+    <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box18" line="box18_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box19" line="box19_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
+
+  <xacro:line_to_obj obj="cont_box20" line="box20_line">
+    <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
+  </xacro:line_to_obj>
 
 </robot>

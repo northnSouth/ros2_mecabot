@@ -46,6 +46,37 @@
     </gazebo>
   </xacro:macro>
 
+  <!-- CONTAINER BOX GENERATION -->
+  <xacro:macro name="cont_box" params="name">
+    <link name="${name}">
+
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="0.3 0.3 0.3"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="0.3 0.3 0.3"/>
+        </geometry>
+      </collision>
+
+      <xacro:inertial_box mass="0.3" x="0.3" y="0.3" z="0.3">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+    <gazebo reference="${name}">
+      <material>Gazebo/White</material>
+    </gazebo>
+  </xacro:macro>
+
   <!-- OBJECT-BASE JOINT GENERATION -->
   <xacro:macro name="wall_joint" params="wall *origin">
     <joint name="base_${wall}_joint" type="fixed">
@@ -55,6 +86,84 @@
       <child link="${wall}"/>
     
     </joint>
+  </xacro:macro>
+
+  <!-- 4 CONTAINER BOX CLUSTER GENERATION -->
+  <xacro:macro name="cont_box_4" params="name0 name1 name2 name3 x y">
+
+    <xacro:wall_joint wall="${name0}">
+      <origin xyz="${6 - x - 0.15} ${3 - y - 0.3 - 0.3} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+    <xacro:wall_joint wall="${name1}">
+      <origin xyz="${6 - x - 0.15} ${3 - y - 0.15} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+    <xacro:wall_joint wall="${name2}">
+      <origin xyz="${6 - x - 0.6} ${3 - y - 0.15} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+    <xacro:wall_joint wall="${name3}">
+      <origin xyz="${6 - x - 0.6} ${3 - y - 0.3 - 0.3} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+  </xacro:macro>
+
+  <!-- 2 CONTAINER BOX CLUSTER GENERATION -->
+  <xacro:macro name="cont_box_2" params="name0 name1 x y">
+
+    <xacro:wall_joint wall="${name0}">
+      <origin xyz="${6 - x - 0.15} ${3 - y - 0.15} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+    <xacro:wall_joint wall="${name1}">
+      <origin xyz="${6 - x - 0.6} ${3 - y - 0.15} ${0.15 + 0.027}"/>
+    </xacro:wall_joint>
+
+  </xacro:macro>
+
+  <!-- LINE GENERATION -->
+  <xacro:macro name="make_line" params="name">  
+    <link name="${name}">
+
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="0.45 0.054 0.0001"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0.01 0.01 0.01 1"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="0.45 0.054 0.0001"/>
+        </geometry>
+      </collision>
+
+      <xacro:inertial_box mass="0.01" x="0.75" y="0.054" z="0.01">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+  </xacro:macro>
+
+  <!-- OBJECT-LINE JOINT LINK GENERATION -->
+  <xacro:macro name="line_to_obj" params="obj line *origin">
+
+    <xacro:make_line name="${line}"/>
+    <joint name="${obj}_${line}_joint" type="fixed">
+
+      <xacro:insert_block name="origin"/>
+      <parent link="${obj}"/>
+      <child link="${line}"/>
+
+    </joint>
+    <gazebo reference="${line}">
+      <material>Gazebo/Black</material>
+    </gazebo>
   </xacro:macro>
 
 </robot>
