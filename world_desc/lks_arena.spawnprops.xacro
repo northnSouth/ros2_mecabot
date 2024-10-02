@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<robot name="mecabot_gz" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+      This xacro file is to be used with the
+      'ros_gz_sim create' command. That is to be
+      spawned to gazebo and not to be used inside
+      a world file.
+  -->
+  
+  <xacro:include filename="lks_arena.include.xacro"/>
+
+  <!-- SIZES -->
+  <xacro:property name="cube_length" value="0.195"/>
+  <xacro:property name="can_length" value="0.396"/>
+  <xacro:property name="can_radius" value="0.078"/>
+
+  <xacro:arg name="color" default="red"/>
+  <xacro:arg name="shape" default="cube"/>
+
+  <!-- MATERIALS -->
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+
+  <!-- ROOT LINK -->
+  <link name="root"/>
+
+  <!-- CUBE -->
+  <xacro:if value="${'$(arg shape)' == 'cube'}">
+    <link name="cube">
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${cube_length} ${cube_length} ${cube_length}"/>
+        </geometry>
+        <material name="$(arg color)"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${cube_length} ${cube_length} ${cube_length}"/>
+        </geometry>
+      </collision>
+
+      <xacro:inertial_box mass="0.4" x="${cube_length}" y="${cube_length}" z="${cube_length}">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+  </xacro:if>
+
+  <!-- CAN -->
+  <xacro:if value="${'$(arg shape)' == 'can'}">
+    <link name="can">
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${can_radius}" length="${can_length}"/>
+        </geometry>
+        <material name="$(arg color)"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${can_radius}" length="${can_length}"/>
+        </geometry>
+      </collision>
+
+      <xacro:inertial_cylinder mass="0.1" length="${can_length}" radius="${can_radius}">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_cylinder>
+
+    </link>
+  </xacro:if>
+
+  <!-- CIRCLE CARD -->
+  <xacro:if value="${'$(arg shape)' == 'circle_card'}">
+    <link name="circle_card">
+      
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- Assuming container box length -->
+          <cylinder radius="0.28" length="0.0001"/> 
+        </geometry>
+        <material name="$(arg color)"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- Assuming container box length -->
+          <cylinder radius="0.28" length="0.0001"/> 
+        </geometry>
+      </collision>
+
+      <xacro:inertial_cylinder mass="0.001" length="0.0001" radius="0.28">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_cylinder>
+
+    </link>
+  </xacro:if>
+
+  <!-- SQUARE CARD -->
+  <xacro:if value="${'$(arg shape)' == 'square_card'}">
+    <link name="square_card">
+      
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- Assuming container box length -->
+          <box size="0.28 0.28 0.000"/>
+        </geometry>
+        <material name="$(arg color)"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- Assuming container box length -->
+          <box size="0.28 0.28 0.0001"/> 
+        </geometry>
+      </collision>
+
+      <xacro:inertial_box mass="0.001" x="0.28" y="0.28" z="0.0001">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+  </xacro:if>
+
+  <!-- CREATE JOINT BASED ON ARGUMENTS -->
+  <joint name="$(arg shape)_joint" type="fixed">
+    <origin xyz="0 0 0"/>
+    <parent link="root"/>
+    <child link="$(arg shape)"/>
+  </joint>
+
+</robot>
