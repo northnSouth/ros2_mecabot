@@ -58,7 +58,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 -0.1"/>
       <geometry>
         <box size="1.8 0.054 0.0001"/>
       </geometry>
@@ -79,7 +79,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 -0.1"/>
       <geometry>
         <box size="1.8 0.054 0.0001"/>
       </geometry>
@@ -100,7 +100,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 -0.1"/>
       <geometry>
         <box size="1.8 0.054 0.0001"/>
       </geometry>
@@ -121,7 +121,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 -0.1"/>
       <geometry>
         <box size="1.8 0.054 0.0001"/>
       </geometry>
