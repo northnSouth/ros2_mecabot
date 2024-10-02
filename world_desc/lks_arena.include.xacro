@@ -15,6 +15,48 @@
     </inertial>
   </xacro:macro>
 
+  <!-- PLANK GENERATION -->
+  <xacro:macro name="make_plank" params="name length width mass">
+    <link name="${name}">
+
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="${length} ${plank_thick} ${width}"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <box size="${length} ${plank_thick} ${width}"/>
+        </geometry>  
+      </collision>
+
+      <xacro:inertial_box mass="${mass}" x="${length}" y="${plank_thick}" z="${width}">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+    </link>
+    <gazebo reference="${name}">
+      <material>Gazebo/White</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- OBJECT-OBJECT JOINT GENERATION -->
+  <xacro:macro name="obj_to_obj" params="name0 name1 *origin">
+    <joint name="${name0}_${name1}_joint" type="fixed">
+
+      <xacro:insert_block name="origin"/>
+      <parent link="${name0}"/>
+      <child link="${name1}"/>
+
+    </joint>
+  </xacro:macro>
+
   <!-- WALL GENERATION -->
   <xacro:macro name="wall_link" params="name length mass">
     <link name="${name}">

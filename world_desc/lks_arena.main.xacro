@@ -36,37 +36,103 @@
       <material>Gazebo/White</material>
     </gazebo>
   
+  <!-- WALL LINKS -->
   <xacro:wall_link name="wall_2000_0" length="6" mass="6"/>
   <xacro:wall_link name="wall_2000_1" length="6" mass="6"/>
   <xacro:wall_link name="wall_4000_0" length="12" mass="12"/>
-  <xacro:wall_link name="wall_4000_1" length="12" mass="12"/>
+  <xacro:make_plank name="wall_4000_1" length="12" width="1.2" mass="12"/>
   <xacro:wall_link name="wall_500_0" length="1.5" mass="1.5"/>
   <xacro:wall_link name="wall_500_1" length="1.5" mass="1.5"/>
   <xacro:wall_link name="wall_250_0" length="0.75" mass="0.75"/>
   <xacro:wall_link name="wall_250_1" length="0.75" mass="0.75"/>
   <xacro:wall_link name="wall_750_0" length="2.25" mass="2.25"/>
+  
+  <link name="home_line_0">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.01 0.01 0.01 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_box mass="0.01" x="0.75" y="0.054" z="0.01">
+      <origin xyz="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
 
-  <xacro:cont_box name="cont_box1"/>
-  <xacro:cont_box name="cont_box2"/>
-  <xacro:cont_box name="cont_box3"/>
-  <xacro:cont_box name="cont_box4"/>
-  <xacro:cont_box name="cont_box5"/>
-  <xacro:cont_box name="cont_box6"/>
-  <xacro:cont_box name="cont_box7"/>
-  <xacro:cont_box name="cont_box8"/>
-  <xacro:cont_box name="cont_box9"/>
-  <xacro:cont_box name="cont_box10"/>
-  <xacro:cont_box name="cont_box11"/>
-  <xacro:cont_box name="cont_box12"/>
-  <xacro:cont_box name="cont_box13"/>
-  <xacro:cont_box name="cont_box14"/>
-  <xacro:cont_box name="cont_box15"/>
-  <xacro:cont_box name="cont_box16"/>
-  <xacro:cont_box name="cont_box17"/>
-  <xacro:cont_box name="cont_box18"/>
-  <xacro:cont_box name="cont_box19"/>
-  <xacro:cont_box name="cont_box20"/>
+  <link name="home_line_1">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.01 0.01 0.01 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_box mass="0.01" x="0.75" y="0.054" z="0.01">
+      <origin xyz="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
 
+  <link name="home_line_2">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.01 0.01 0.01 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_box mass="0.01" x="0.75" y="0.054" z="0.01">
+      <origin xyz="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+  
+  <link name="home_line_3">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.01 0.01 0.01 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.054 0.0001"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_box mass="0.01" x="0.75" y="0.054" z="0.01">
+      <origin xyz="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+
+  <!-- WALL JOINTS -->
   <xacro:wall_joint wall="wall_2000_0">
     <origin xyz="${plank_thick / 2 + 6} 0 ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
   </xacro:wall_joint>
@@ -80,7 +146,7 @@
   </xacro:wall_joint>
 
   <xacro:wall_joint wall="wall_4000_1">
-    <origin xyz="0 ${plank_thick / 2 + 3} ${wall_height / 2 + 0.027}"/>
+    <origin xyz="0 ${plank_thick / 2 + 3} ${1.2 / 2 + 0.027}"/>
   </xacro:wall_joint>
 
   <xacro:wall_joint wall="wall_500_0">
@@ -103,7 +169,62 @@
     <origin xyz="${-6 + 5.121} ${0.75 + 1.125} ${wall_height / 2 + 0.027}" rpy="0 0 ${pi / 2}"/>
   </xacro:wall_joint>
 
+  <xacro:obj_to_obj name0="wall_500_0" name1="home_line_0">
+    <origin xyz="${0.1 + 0.054} -${0.054} -0.3"/>
+  </xacro:obj_to_obj>
 
+  <xacro:obj_to_obj name0="wall_500_0" name1="home_line_1">
+    <origin xyz="${0.1 + 0.054} -${1.8 - 0.027} -0.3"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="wall_500_0" name1="home_line_2">
+    <origin xyz="${0.1 + 0.054 - 0.9 + 0.027} -${0.9 + 0.027} -0.3" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="wall_500_0" name1="home_line_3">
+    <origin xyz="${0.1 + 0.054 - 0.9 + 0.027 + 1.8} -${0.9 + 0.027} -0.3" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <gazebo reference="home_line_0">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="home_line_1">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="home_line_2">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="home_line_3">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+
+  <!-- CONTAINER BOXES LINKS -->
+  <xacro:cont_box name="cont_box1"/>
+  <xacro:cont_box name="cont_box2"/>
+  <xacro:cont_box name="cont_box3"/>
+  <xacro:cont_box name="cont_box4"/>
+  <xacro:cont_box name="cont_box5"/>
+  <xacro:cont_box name="cont_box6"/>
+  <xacro:cont_box name="cont_box7"/>
+  <xacro:cont_box name="cont_box8"/>
+  <xacro:cont_box name="cont_box9"/>
+  <xacro:cont_box name="cont_box10"/>
+  <xacro:cont_box name="cont_box11"/>
+  <xacro:cont_box name="cont_box12"/>
+  <xacro:cont_box name="cont_box13"/>
+  <xacro:cont_box name="cont_box14"/>
+  <xacro:cont_box name="cont_box15"/>
+  <xacro:cont_box name="cont_box16"/>
+  <xacro:cont_box name="cont_box17"/>
+  <xacro:cont_box name="cont_box18"/>
+  <xacro:cont_box name="cont_box19"/>
+  <xacro:cont_box name="cont_box20"/>
+
+  <!-- CONTAINER BOXES CLUSTERS -->
   <xacro:cont_box_4 
     name0="cont_box1" 
     name1="cont_box2"
@@ -161,6 +282,7 @@
   </xacro:wall_joint>
 
 
+  <!-- CONTAINER BOXES JOINTS -->
   <xacro:line_to_obj obj="cont_box1" line="box1_line">
     <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
   </xacro:line_to_obj>
@@ -240,5 +362,119 @@
   <xacro:line_to_obj obj="cont_box20" line="box20_line">
     <origin xyz="-${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
   </xacro:line_to_obj>
+
+
+  <!-- BOX RACK LINKS -->
+  <xacro:make_plank name="box_rack_plank_0" width="1.443" length="0.3" mass="0.3"/>
+  <xacro:make_plank name="box_rack_plank_1" width="1.443" length="0.3" mass="0.3"/>
+  <xacro:make_plank name="box_rack_plank_2" width="1.293" length="0.3" mass="0.3"/>
+  <xacro:make_plank name="box_rack_plank_3" width="1.185" length="0.3" mass="0.3"/>
+  <xacro:make_plank name="box_rack_plank_4" width="1.185" length="0.3" mass="0.3"/>
+  <xacro:make_plank name="box_rack_plank_5" width="1.185" length="0.3" mass="0.3"/>
+  <xacro:make_line name="box_rack_line_0"/>
+  <xacro:make_line name="box_rack_line_1"/>
+  <xacro:make_line name="box_rack_line_2"/>
+
+  <!-- BOX RACK JOINTS -->
+  <xacro:obj_to_obj name0="box_rack_plank_0" name1="box_rack_plank_1">
+    <origin xyz="0 ${1.185 + 0.054} 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_1" name1="box_rack_plank_2">
+    <origin xyz="0 -0.6195 ${1.443 / 2}" rpy="${pi / 2} 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_2" name1="box_rack_plank_3">
+    <origin xyz="0 -${0.345 + 0.054} 0" rpy="0 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_3" name1="box_rack_plank_4">
+    <origin xyz="0 -${0.345 + 0.054} 0" rpy="0 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_4" name1="box_rack_plank_5">
+    <origin xyz="0 -${0.345 + 0.054} 0" rpy="0 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_5" name1="box_rack_line_0">
+    <origin xyz="${-0.225 - 0.3} -${0.3 - 0.054} 0" rpy="${pi / 2} 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_5" name1="box_rack_line_1">
+    <origin xyz="${-0.225 - 0.3} -${0.3 - 0.054} 0.345" rpy="${pi / 2} 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="box_rack_plank_5" name1="box_rack_line_2">
+    <origin xyz="${-0.225 - 0.3} -${0.3 - 0.054} -0.345" rpy="${pi / 2} 0 0"/>
+  </xacro:obj_to_obj>
+
+  <xacro:wall_joint wall="box_rack_plank_0">
+    <origin xyz="${-6 - 0.027 + 2.043} ${3 - 0.15} 0.7485" rpy="0 0 ${pi / 2}"/>
+  </xacro:wall_joint>
+
+
+  <!-- DRINK RACK LINKS -->
+  <link name="drink_rack">
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <mesh
+            filename="file://$(find mecabot_gz)/../../../../world_desc/mesh/drink_rack.stl"
+            scale="1.5 1.5 1.5"
+          />
+        </geometry>
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <mesh
+            filename="file://$(find mecabot_gz)/../../../../world_desc/mesh/drink_rack.stl"
+            scale="1.5 1.5 1.5"
+          />
+        </geometry>
+      </collision>
+
+      <xacro:inertial_box mass="1.5" x="1.6" y="0.3" z="1">
+        <origin xyz="0 0 0"/>
+      </xacro:inertial_box>
+
+  </link>
+  <gazebo reference="drink_rack">
+    <material>Gazebo/White</material>
+  </gazebo>
+  <xacro:make_line name="drink_rack_line_0"/>
+  <xacro:make_line name="drink_rack_line_1"/>
+  <xacro:make_line name="drink_rack_line_2"/>
+  <xacro:make_line name="drink_rack_line_3"/>
+  <xacro:make_line name="drink_rack_line_4"/>
+
+  <!-- DRINK RACK JOINTS -->
+  <xacro:wall_joint wall="drink_rack">
+    <origin xyz="${-6 + 0.789 + 0.002 + 2.793} ${3 - 0.108 - 0.027} 0.027" rpy="0 0 0"/>
+  </xacro:wall_joint>
+
+  <xacro:obj_to_obj name0="drink_rack" name1="drink_rack_line_0">
+    <origin xyz="0 ${-0.225 * 2 - 0.15} 0" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="drink_rack" name1="drink_rack_line_1">
+    <origin xyz="0.2502 ${-0.225 * 2 - 0.15} 0" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="drink_rack" name1="drink_rack_line_2">
+    <origin xyz="${0.2502 * 2} ${-0.225 * 2 - 0.15} 0" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="drink_rack" name1="drink_rack_line_3">
+    <origin xyz="-0.2502 ${-0.225 * 2 - 0.15} 0" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
+
+  <xacro:obj_to_obj name0="drink_rack" name1="drink_rack_line_4">
+    <origin xyz="-${0.2502 * 2} ${-0.225 * 2 - 0.15} 0" rpy="0 0 ${pi / 2}"/>
+  </xacro:obj_to_obj>
 
 </robot>

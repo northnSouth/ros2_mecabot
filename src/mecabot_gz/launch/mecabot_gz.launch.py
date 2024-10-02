@@ -100,11 +100,13 @@ def generate_launch_description():
   )
 
   return LaunchDescription([
-    ros_gz_bridge,
-    sim_time_forward,
+    gazebo,
     TimerAction(
-      period=3.0,
-      actions=[gazebo]
+      period=4.0,
+      actions=[
+        ros_gz_bridge,
+        sim_time_forward
+      ]
     ),
     TimerAction(
       period=6.0,
