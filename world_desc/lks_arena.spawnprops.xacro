@@ -94,7 +94,7 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <!-- Assuming container box length -->
-          <cylinder radius="0.28" length="0.0001"/> 
+          <cylinder radius="0.14" length="0.001"/> 
         </geometry>
         <material name="$(arg color)"/>
       </visual>
@@ -103,11 +103,11 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <!-- Assuming container box length -->
-          <cylinder radius="0.28" length="0.0001"/> 
+          <cylinder radius="0.14" length="0.001"/> 
         </geometry>
       </collision>
 
-      <xacro:inertial_cylinder mass="0.001" length="0.0001" radius="0.28">
+      <xacro:inertial_cylinder mass="0.001" length="0.001" radius="0.28">
         <origin xyz="0 0 0"/>
       </xacro:inertial_cylinder>
 
@@ -122,7 +122,7 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <!-- Assuming container box length -->
-          <box size="0.28 0.28 0.000"/>
+          <box size="0.28 0.28 0.001"/>
         </geometry>
         <material name="$(arg color)"/>
       </visual>
@@ -131,11 +131,11 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <!-- Assuming container box length -->
-          <box size="0.28 0.28 0.0001"/> 
+          <box size="0.28 0.28 0.001"/> 
         </geometry>
       </collision>
 
-      <xacro:inertial_box mass="0.001" x="0.28" y="0.28" z="0.0001">
+      <xacro:inertial_box mass="0.001" x="0.28" y="0.28" z="0.001">
         <origin xyz="0 0 0"/>
       </xacro:inertial_box>
 
