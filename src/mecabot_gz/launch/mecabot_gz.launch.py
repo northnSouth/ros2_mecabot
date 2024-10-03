@@ -27,7 +27,6 @@ def generate_launch_description():
   )
 
   # Launch Gazebo simulator with empty world
-  # TODO: Create the package's own world file
   gazebo = IncludeLaunchDescription(
     launch_description_source = PythonLaunchDescriptionSource(
       os.path.join(get_package_share_directory('ros_gz_sim'),

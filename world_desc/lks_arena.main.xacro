@@ -266,7 +266,7 @@
     y="${6 - 0.75 - 0.6 - 0.15}"
   />
 
-    <xacro:cont_box_2 
+  <xacro:cont_box_2 
     name0="cont_box17"
     name1="cont_box18"
     x="${1.8 + 0.054 + 2.271 + 0.6 * 2 + 0.15 * 2 + 1.125 + 0.75 + 0.054 + 1.821}"
@@ -282,7 +282,7 @@
   </xacro:wall_joint>
 
 
-  <!-- CONTAINER BOXES JOINTS -->
+  <!-- CONTAINER BOX LINES JOINTS -->
   <xacro:line_to_obj obj="cont_box1" line="box1_line">
     <origin xyz="${0.225 + 0.15} 0 -0.15" rpy="0 0 0"/>
   </xacro:line_to_obj>
