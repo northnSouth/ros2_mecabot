@@ -1,12 +1,12 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node # Node launch description
-from launch.actions import IncludeLaunchDescription # Launch another launch file
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import ExecuteProcess # Duh
 from launch.actions import TimerAction # Launch delay timer
 from ament_index_python import get_package_share_directory # Get package directory
 import os # Joining paths
 import xacro # XACRO utilities
 import math # Duh
+from launch.substitutions import FindExecutable # So the logs will show where process binary is located
 
 def generate_launch_description():
 
@@ -27,13 +27,15 @@ def generate_launch_description():
   )
 
   # Launch Gazebo simulator with empty world
-  gazebo = IncludeLaunchDescription(
-    launch_description_source = PythonLaunchDescriptionSource(
-      os.path.join(get_package_share_directory('ros_gz_sim'),
-                  'launch/gz_sim.launch.py'
-      )
-    ),
-    launch_arguments = [{ 'gz_args', 'empty.sdf' }]
+  gazebo_as_process = ExecuteProcess(
+    cmd=[[
+      FindExecutable(name="ros2"),
+      " launch ",
+      " ros_gz_sim ",
+      " gz_sim.launch.py ",
+      " gz_args:=empty.sdf "
+    ]],
+    shell=True
   )
 
   # Spawn robot in Gazebo from /robot_description
@@ -99,24 +101,24 @@ def generate_launch_description():
   )
 
   return LaunchDescription([
-    gazebo,
+    gazebo_as_process,
     TimerAction(
-      period=4.0,
+      period=1.0,
       actions=[
         ros_gz_bridge,
         sim_time_forward
       ]
     ),
     TimerAction(
-      period=6.0,
+      period=2.0,
       actions=[robot_state_publisher]
     ),
     TimerAction(
-      period=7.0,
+      period=3.0,
       actions=[arena_spawner]
     ),
     TimerAction(
-      period=10.0,
+      period=4.0,
       actions=[
         bot_spawner,
         rviz2,

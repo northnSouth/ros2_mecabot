@@ -4,8 +4,9 @@ from ament_index_python import get_package_share_directory # Get package directo
 import os # Joining paths
 import xacro # XACRO utilities
 import random # Randomizing objects
-import math
-from launch.actions import TimerAction # Launch delay timer to avoid RTO
+import math # Duh
+import sys # For CLI arguments
+from launch.actions import TimerAction, DeclareLaunchArgument # Launch delay timer to avoid RTO
 
 def calc_table_coords(form, x, y):
 
@@ -84,15 +85,8 @@ def generate_launch_description():
   for i in range(len(xy_cards_map)):
     for j in range(len(xy_cards_map[i])):
       xy_cards_coord.append(xy_cards_map[i][j]) # Fill out z, R, P, Y arguments
-
-  cube = 9 # Total cubes to be spawned
-  can = 8 # Total cans to be spawned
-  payload_total = cube + can # Amount of payload to be spawned
-
-  cube_cards = cube # Total cube cards to be spawned
-  can_cards = can # Total can cards to be spawned
-  cards_total = cube_cards + can_cards # Amount of cards to be spawned
-
+  
+  # Cube rack coordinate generation
   cube_rack_origin = [-4.1085, 2.85, 0.45] # Bottom right corner of 1st level of cube rack
   cube_coords = [] # Coordinates of cubes
 
@@ -118,6 +112,7 @@ def generate_launch_description():
     ]
   ])
 
+  # Can rack coordinate generation
   can_rack_origin = [-1.9156, 2.78, 0.5] # Bottom left corner of 1st level of can rack
   can_coords = [ # Coordinates of cans
     [
@@ -149,6 +144,23 @@ def generate_launch_description():
       can_rack_origin[2] + 0.498,
       math.pi / 2, 0.0, 0.0
     ])
+
+  # Props generation
+  cube = 0 # Total cubes to be spawned
+  can = 0 # Total cans to be spawned
+
+  # Extract args
+  for arg in sys.argv:
+    if arg.startswith("cubes:="):
+      cube = int(arg.split(":=")[1])
+    if arg.startswith("cans:="):
+      can = int(arg.split(":=")[1])
+
+  payload_total = cube + can # Amount of payload to be spawned
+
+  cube_cards = cube # Total cube cards to be spawned
+  can_cards = can # Total can cards to be spawned
+  cards_total = cube_cards + can_cards # Amount of cards to be spawned
   
   # Append randomized props to prop_list
   while len(prop_list) < cards_total + payload_total:
@@ -219,15 +231,13 @@ def generate_launch_description():
     )
 
     node_list.append(prop_spawner)
-
-  for i in prop_list:
-    print(i)
-
   print("%i props spawning" % len(node_list))
 
+  # Wrap spawners in timers so the simulation won't time out the requests
+  # (Delaying spawns)
   node_list_delayed = []
   time_adder = 0
-  separation_interval = 4
+  separation_interval = 4 # How many spawns at a time
   while len(node_list) - separation_interval > -separation_interval:
 
     remaining_item = len(node_list) - separation_interval
@@ -251,7 +261,17 @@ def generate_launch_description():
       node_list = []
 
     time_adder += 1
-    print(remaining_item)
-    print(len(node_list))
+
+  # For --show-args
+  node_list_delayed.extend([
+    DeclareLaunchArgument(
+      'cubes', default_value="0",
+      description="How many card-item cube pairs to spawn. 9 cubes max"
+    ),
+    DeclareLaunchArgument(
+      'cans', default_value="0",
+      description="How many card-item can pairs to spawn. 8 cans max"
+    )
+  ])
 
   return LaunchDescription(node_list_delayed)
