@@ -26,6 +26,13 @@ ament_target_dependencies(
   tf2
 )
 
+add_executable(sim_time_forward src/sim_time_forward.cpp)
+ament_target_dependencies(
+  sim_time_forward
+  rclcpp
+  rosgraph_msgs
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -47,6 +54,21 @@ install(TARGETS
 
 install (DIRECTORY
   launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+install (DIRECTORY
+  ../../robot_desc
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+install (DIRECTORY
+  ../../world_desc
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+install (DIRECTORY
+  config
   DESTINATION share/${PROJECT_NAME}/
 )
 

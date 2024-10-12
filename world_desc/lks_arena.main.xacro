@@ -419,7 +419,7 @@
         <origin xyz="0 0 0"/>
         <geometry>
           <mesh
-            filename="file://$(find mecabot_gz)/../../../../world_desc/mesh/drink_rack.stl"
+            filename="file://$(find mecabot_gz)/world_desc/mesh/drink_rack.stl"
             scale="1.5 1.5 1.5"
           />
         </geometry>
@@ -432,7 +432,7 @@
         <origin xyz="0 0 0"/>
         <geometry>
           <mesh
-            filename="file://$(find mecabot_gz)/../../../../world_desc/mesh/drink_rack.stl"
+            filename="file://$(find mecabot_gz)/world_desc/mesh/drink_rack.stl"
             scale="1.5 1.5 1.5"
           />
         </geometry>

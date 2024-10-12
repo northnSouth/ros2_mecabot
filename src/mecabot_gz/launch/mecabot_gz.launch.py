@@ -13,7 +13,7 @@ def generate_launch_description():
   # Read XACRO file of the robot
   robot_desc = xacro.process_file(
     os.path.join(get_package_share_directory('mecabot_gz'), 
-                '../../../../robot_desc/mecabot_gz.main.xacro')
+                'robot_desc/mecabot_gz.main.xacro')
   ).toprettyxml(indent='  ')
 
   # Run robot_state_publisher
@@ -38,6 +38,25 @@ def generate_launch_description():
     shell=True
   )
 
+  # Unpause Gazebo for ROS2 Controller activation
+  gazebo_unpause = ExecuteProcess(
+    cmd=[[
+      FindExecutable(name="ros2"),
+      " service call ",
+      " /world/empty/control ",
+      " ros_gz_interfaces/srv/ControlWorld ",
+      " '{world_control: {pause: false}}' "
+    ]],
+    shell=True
+  )
+
+  # ROS2 Controller joint_states_broadcaster activation
+  joint_state_activate = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=["joint_state_broadcaster"]
+  )
+
   # Spawn robot in Gazebo from /robot_description
   bot_spawner = Node(
     package='ros_gz_sim',
@@ -56,7 +75,7 @@ def generate_launch_description():
   # Read arena xacro file
   arena_desc = xacro.process_file(
     os.path.join(get_package_share_directory('mecabot_gz'), 
-                '../../../../world_desc/lks_arena.main.xacro')
+                'world_desc/lks_arena.main.xacro')
   ).toprettyxml(indent='  ')
 
   # Spawn arena in Gazebo from file
@@ -78,7 +97,8 @@ def generate_launch_description():
     arguments=[
       '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
       '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
-      '/world/empty/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'
+      '/world/empty/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+      '/world/empty/control@ros_gz_interfaces/srv/ControlWorld'
     ]
   )
 
@@ -122,8 +142,13 @@ def generate_launch_description():
       actions=[
         bot_spawner,
         rviz2,
-        enc_to_odom
+        enc_to_odom,
+        gazebo_unpause
       ]
     ),
+    TimerAction(
+      period=5.0,
+      actions=[joint_state_activate]
+    )
     
   ])

@@ -30,7 +30,7 @@
         <origin xyz="0 0 0"/>
         <geometry>
           <mesh
-            filename="file://$(find mecabot_gz)/../../../../robot_desc/mesh/mecanum_${direction}.STL"
+            filename="file://$(find mecabot_gz)/robot_desc/mesh/mecanum_${direction}.STL"
             scale="${mecanum_radius * 2 / 100} ${mecanum_radius * 2 / 100} ${mecanum_radius * 2 / 100}"
           /> <!-- Scale mesh to radius -->
         </geometry>
@@ -91,7 +91,7 @@
         <origin xyz="0 0 0" rpy="-${pi/2} 0 0"/>
         <geometry>
           <mesh
-            filename="file://$(find mecabot_gz)/../../../../robot_desc/mesh/omni_wheel.stl"
+            filename="file://$(find mecabot_gz)/robot_desc/mesh/omni_wheel.stl"
             scale="${omni_radius / 5} ${omni_radius / 5} ${omni_radius / 5}"
           /> <!-- Scale mesh to radius -->
         </geometry>
