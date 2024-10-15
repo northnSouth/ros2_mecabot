@@ -5,7 +5,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+# Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
@@ -13,8 +13,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(controller_interface REQUIRED)
 
-# executables
+# Encoder to Odometry
 add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
 ament_target_dependencies(
   encoder_to_odometry
@@ -26,12 +27,22 @@ ament_target_dependencies(
   tf2
 )
 
+# Sim Time Forward
 add_executable(sim_time_forward src/sim_time_forward.cpp)
 ament_target_dependencies(
   sim_time_forward
   rclcpp
   rosgraph_msgs
 )
+
+# Mecabot Motion Control
+add_executable(mecabot_move src/mecabot_move.cpp)
+ament_target_dependencies(
+  mecabot_move
+  controller_interface
+)
+
+include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -47,27 +58,33 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Encoder to Odometry
 install(TARGETS
   encoder_to_odometry
+  sim_time_forward
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install (DIRECTORY
+# Build launch files
+install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
 )
 
-install (DIRECTORY
+# Build robot models
+install(DIRECTORY
   ../../robot_desc
   DESTINATION share/${PROJECT_NAME}/
 )
 
-install (DIRECTORY
+# Build world models
+install(DIRECTORY
   ../../world_desc
   DESTINATION share/${PROJECT_NAME}/
 )
 
-install (DIRECTORY
+# Build config files
+install(DIRECTORY
   config
   DESTINATION share/${PROJECT_NAME}/
 )
