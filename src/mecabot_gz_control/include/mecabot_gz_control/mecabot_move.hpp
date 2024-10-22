@@ -1,8 +1,8 @@
 #ifndef MECABOT_MOVE_HPP_
 #define MECABOT_MOVE_HPP_
 
-#include "controller_interface/controller_interface.hpp"
-#include "controller_interface/controller_interface_base.hpp"
+#include <controller_interface/controller_interface.hpp>
+#include <controller_interface/controller_interface_base.hpp>
 #include "visibility_control.h"
 
 namespace mecabot_move {
@@ -37,6 +37,18 @@ namespace mecabot_move {
     MECABOT_MOVE_PUBLIC
     controller_interface::return_type update(
       const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  
+    MECABOT_MOVE_PUBLIC
+    controller_interface::CallbackReturn on_error(
+      const rclcpp_lifecycle::State & previous_state) override;
+  
+    MECABOT_MOVE_PUBLIC
+    controller_interface::CallbackReturn on_cleanup(
+      const rclcpp_lifecycle::State & previous_state) override;
+  
+    MECABOT_MOVE_PUBLIC
+    controller_interface::CallbackReturn on_shutdown(
+      const rclcpp_lifecycle::State & previous_state) override;
   };
 }
 

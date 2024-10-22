@@ -4,6 +4,11 @@
 #include <rosgraph_msgs/msg/clock.hpp>
 using std::placeholders::_1;
 
+/*
+  Forwarding simulation clock bridged at
+  /world/empty/clock to /clock
+*/
+
 class SimTimeForward : public rclcpp::Node
 {
 public:

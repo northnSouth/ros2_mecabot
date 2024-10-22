@@ -35,13 +35,6 @@ ament_target_dependencies(
   rosgraph_msgs
 )
 
-# Mecabot Motion Control
-add_executable(mecabot_move src/mecabot_move.cpp)
-ament_target_dependencies(
-  mecabot_move
-  controller_interface
-)
-
 include_directories(include)
 
 if(BUILD_TESTING)
@@ -58,7 +51,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# Encoder to Odometry
+# Build Executables
 install(TARGETS
   encoder_to_odometry
   sim_time_forward
