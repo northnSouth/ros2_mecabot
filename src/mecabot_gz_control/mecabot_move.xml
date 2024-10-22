@@ -1,0 +1,10 @@
+<library path="mecabot_gz_control">
+  <class name="mecabot_gz_control/MecabotMove" 
+         type="mecabot_move::MecabotMove"
+         base_class_type="controller_interface::ControllerInterface"
+  >
+    <description>
+      Drive mecabot in gazebo simulation
+    </description>
+  </class>
+</library>

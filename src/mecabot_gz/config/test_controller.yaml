@@ -4,3 +4,6 @@ controller_manager:
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+    mecabot_move:
+      type: mecabot_gz_control/MecabotMove
