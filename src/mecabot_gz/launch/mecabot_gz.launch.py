@@ -50,11 +50,15 @@ def generate_launch_description():
     shell=True
   )
 
-  # ROS2 Controller joint_states_broadcaster activation
-  joint_state_activate = Node(
+  # ROS2 Controller activation
+  ros2c_activate = Node(
     package="controller_manager",
     executable="spawner",
-    arguments=["joint_state_broadcaster"]
+    arguments=
+    [
+      "JSB", # joint_state_broadcaster
+      "JTC" # joint_trajectory_controller
+    ]
   )
 
   # Spawn robot in Gazebo from /robot_description
@@ -148,7 +152,7 @@ def generate_launch_description():
     ),
     TimerAction(
       period=5.0,
-      actions=[joint_state_activate]
+      actions=[ros2c_activate]
     )
     
   ])
