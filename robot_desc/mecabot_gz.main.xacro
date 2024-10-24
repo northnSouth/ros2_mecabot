@@ -130,7 +130,7 @@
   <!-- GAZEBO PLUGINS -->
   <gazebo>
 
-    <plugin
+    <!-- <plugin
       filename="gz-sim-mecanum-drive-system"
       name="gz::sim::systems::MecanumDrive">
       <front_left_joint>front_left_mecanum_joint</front_left_joint>
@@ -143,7 +143,7 @@
       <topic>/cmd_vel</topic>
       <min_acceleration>-3</min_acceleration>
       <max_acceleration>3</max_acceleration>
-    </plugin>
+    </plugin> -->
 
     <plugin
       name="gz_ros2_control::GazeboSimROS2ControlPlugin"

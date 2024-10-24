@@ -57,7 +57,7 @@ def generate_launch_description():
     arguments=
     [
       "JSB", # joint_state_broadcaster
-      "JTC" # joint_trajectory_controller
+      "velo_c" # velocity_controllers
     ]
   )
 
@@ -99,8 +99,6 @@ def generate_launch_description():
     package='ros_gz_bridge',
     executable='parameter_bridge',
     arguments=[
-      '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
-      '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
       '/world/empty/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
       '/world/empty/control@ros_gz_interfaces/srv/ControlWorld'
     ]

@@ -8,12 +8,12 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
-find_package(controller_interface REQUIRED)
 
 # Encoder to Odometry
 add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
@@ -33,6 +33,14 @@ ament_target_dependencies(
   sim_time_forward
   rclcpp
   rosgraph_msgs
+)
+
+# Mecabot Move Node
+add_executable(mecabot_move_node src/mecabot_move_node.cpp)
+ament_target_dependencies(
+  mecabot_move_node
+  rclcpp
+  std_msgs
 )
 
 include_directories(include)
@@ -55,6 +63,7 @@ endif()
 install(TARGETS
   encoder_to_odometry
   sim_time_forward
+  mecabot_move_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -5,8 +5,8 @@ controller_manager:
     JSB:
       type: joint_state_broadcaster/JointStateBroadcaster
     
-    JTC:
-      type: joint_trajectory_controller/JointTrajectoryController
+    velo_c:
+      type: velocity_controllers/JointGroupVelocityController
 
 JSB:
   ros__parameters:
@@ -23,20 +23,13 @@ JSB:
     interfaces:
       - position
 
-JTC:
+velo_c:
   ros__parameters:
     joints:
       - front_left_mecanum_joint
       - front_right_mecanum_joint
       - rear_left_mecanum_joint
       - rear_right_mecanum_joint
-    
-    command_interfaces:
-      - velocity
-    
-    state_interfaces:
-      - position
-      - velocity
 
 
     

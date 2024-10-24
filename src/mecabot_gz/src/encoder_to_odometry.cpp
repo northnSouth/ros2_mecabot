@@ -1,5 +1,6 @@
 #include <memory>
 #include <cmath>
+#include <rclcpp/logging.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 // Messages
@@ -7,6 +8,11 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
+
+/*
+  Calculating odometry based on 3 
+  passive rotary encoders readings 
+*/
 
 bool hasSuffix (std::string const&, std::string const&); // Check if a string has a certain suffix
 bool hasPrefix (std::string const&, std::string const&); // Check if a string has a certain prefix
@@ -18,6 +24,8 @@ class EncoderToOdometry : public rclcpp::Node
   public:
     EncoderToOdometry() : Node("encoder_to_odometry")
     {
+      RCLCPP_INFO(this->get_logger(), "\033[32mStarting Encoder to Odometry node\033[0m");
+      
       tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
       auto jointStatesCallback =
         [this](sensor_msgs::msg::JointState::UniquePtr states) -> void {
@@ -82,9 +90,9 @@ class EncoderToOdometry : public rclcpp::Node
 
           tf_broadcaster->sendTransform(tf_stamped);
 
-          RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
-          RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
-          RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
+          // RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
+          // RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
+          // RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
 
           // Save encoder readings for next loop
           old_x_left = x_left;
