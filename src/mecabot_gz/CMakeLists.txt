@@ -41,6 +41,9 @@ ament_target_dependencies(
   mecabot_move_node
   rclcpp
   std_msgs
+  geometry_msgs
+  tf2_ros
+  tf2
 )
 
 include_directories(include)

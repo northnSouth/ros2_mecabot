@@ -122,6 +122,12 @@ def generate_launch_description():
     executable='sim_time_forward'
   )
 
+  # Run mecabot move node for kinematics
+  mecabot_move = Node(
+    package='mecabot_gz',
+    executable='mecabot_move_node'
+  )
+
   return LaunchDescription([
     gazebo_as_process,
     TimerAction(
@@ -151,6 +157,10 @@ def generate_launch_description():
     TimerAction(
       period=5.0,
       actions=[ros2c_activate]
+    ),
+    TimerAction(
+      period=8.0,
+      actions=[mecabot_move]
     )
     
   ])
