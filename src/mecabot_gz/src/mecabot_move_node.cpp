@@ -2,6 +2,7 @@
 #include <memory>
 #include <cmath>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/timer.hpp>
 #include <tf2/time.h>
 #include "std_msgs/msg/float64_multi_array.hpp"
 #include "geometry_msgs/msg/twist.hpp"
@@ -30,18 +31,26 @@ public:
     this->declare_parameter<bool>("global_ref", false);
     this->declare_parameter<float>("speed_multiplier", 1);
 
-    // Publisher object
+    // Commands publisher
     publish_move_ =
       this->create_publisher
         <std_msgs::msg::Float64MultiArray>("/velo_c/commands", 10);
+    
+    // Twist subscriber
+    subscribe_move_ = 
+      this->create_subscription
+        <geometry_msgs::msg::Twist>("/cmd_vel", 10, 
+        [this](geometry_msgs::msg::Twist::UniquePtr twist) -> void {
+          twist_msg_ = *twist;
+      });
 
     // TF2 listener
     tf2_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf2_buffer_);
-
+      
     // Kinematics callback
     auto kinematics_callback =
-      [this](geometry_msgs::msg::Twist::UniquePtr twist) -> void {
+      [this]() -> void {
         
         // Get parameters
         bool global_ref;
@@ -50,7 +59,7 @@ public:
         this->get_parameter("speed_multiplier", speed_multiplier);
 
         // Motion direction in cartesian coordinates
-        double cartesian_direction[2] = {twist->linear.x, twist->linear.y};
+        double cartesian_direction[2] = {this->twist_msg_.linear.x, this->twist_msg_.linear.y};
 
         // Global reference mode
         if (global_ref) {
@@ -75,9 +84,9 @@ public:
           // Rotate input coords
           if (tf2_available) {
             cartesian_direction[0] =
-              twist->linear.x * cos(angle) + twist->linear.y * sin(angle);
+              this->twist_msg_.linear.x * cos(angle) + this->twist_msg_.linear.y * sin(angle);
             cartesian_direction[1] =
-              -twist->linear.x * sin(angle) + twist->linear.y * cos(angle);
+              -this->twist_msg_.linear.x * sin(angle) + this->twist_msg_.linear.y * cos(angle);
           }
         }
 
@@ -90,13 +99,13 @@ public:
         float vector1 = vpmagni * sin(vptheta);
 
         // Setting motor speeds
-        float m1 = vector0 - twist->angular.z;
-        float m2 = vector1 + twist->angular.z;
-        float m3 = vector1 - twist->angular.z;
-        float m4 = vector0 + twist->angular.z;
+        float m1 = vector0 - this->twist_msg_.angular.z;
+        float m2 = vector1 + this->twist_msg_.angular.z;
+        float m3 = vector1 - this->twist_msg_.angular.z;
+        float m4 = vector0 + this->twist_msg_.angular.z;
 
         // If the sum vector magnitude goes above one, turn it down
-        float summagni = vpmagni + abs(twist->angular.z);
+        float summagni = vpmagni + abs(this->twist_msg_.angular.z);
         if (summagni > 1) {
           m1 /= summagni;
           m2 /= summagni;
@@ -120,24 +129,25 @@ public:
         publish_move_->publish(msg_);
       };
 
+    kinematics_worker_ = this->create_wall_timer(1ms, kinematics_callback);
+
     // CONTROLLER WAKE-UP SEQUENCE
     msg_.data = {0.0, 0.0, 0.0, 0.0};
     publish_move_->publish(msg_);
     RCLCPP_INFO(this->get_logger(), "\033[33mWaking up controller\033[0m");
     rclcpp::sleep_for(std::chrono::seconds(3));
     RCLCPP_INFO(this->get_logger(), "\033[92mController ready!\033[0m");
-
-    // Subscriber object
-    subscribe_move_ = 
-      this->create_subscription
-        <geometry_msgs::msg::Twist>("/cmd_vel", 10, kinematics_callback);
   }
+  
 private:
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publish_move_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscribe_move_;
+  rclcpp::TimerBase::SharedPtr kinematics_worker_;
   std_msgs::msg::Float64MultiArray msg_;
   std::unique_ptr<tf2_ros::Buffer> tf2_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  geometry_msgs::msg::Twist twist_msg_;
+  
 };
 
 int main (int argc, char** argv)
