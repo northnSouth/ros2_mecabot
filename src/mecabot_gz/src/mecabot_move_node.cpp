@@ -1,7 +1,6 @@
 #include <chrono>
 #include <memory>
 #include <cmath>
-#include <rclcpp/logging.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2/time.h>
 #include "std_msgs/msg/float64_multi_array.hpp"
@@ -50,8 +49,8 @@ public:
         this->get_parameter("global_ref", global_ref);
         this->get_parameter("speed_multiplier", speed_multiplier);
 
-        // Rotated coords used if global reference mode is true
-        double rotated_coords[2] = {twist->linear.x, twist->linear.y};
+        // Motion direction in cartesian coordinates
+        double cartesian_direction[2] = {twist->linear.x, twist->linear.y};
 
         // Global reference mode
         if (global_ref) {
@@ -67,7 +66,7 @@ public:
             tf2_available = true;
 
             // Convert quaternion angle to euler
-            angle = 2 * atan2(tf2.transform.rotation.z, tf2.transform.rotation.w);
+            angle = 2 * atan2(tf2.transform.rotation.z, tf2.transform.rotation.w) * -1;
           } catch (const tf2::TransformException & ex) {
             RCLCPP_ERROR(this->get_logger(),
               "Could not get base_link to world transforms %s", ex.what());
@@ -75,26 +74,26 @@ public:
 
           // Rotate input coords
           if (tf2_available) {
-            rotated_coords[0] =
+            cartesian_direction[0] =
               twist->linear.x * cos(angle) + twist->linear.y * sin(angle);
-            rotated_coords[1] =
+            cartesian_direction[1] =
               -twist->linear.x * sin(angle) + twist->linear.y * cos(angle);
           }
         }
 
         // Calculate polar coordinate from the cartesian input
-        float vptheta = atan2(rotated_coords[1], rotated_coords[0]) + M_PI/4;
-        float vpmagni = hypot(rotated_coords[0], rotated_coords[1]);
+        float vptheta = atan2(cartesian_direction[1], cartesian_direction[0]) + M_PI/4;
+        float vpmagni = hypot(cartesian_direction[0], cartesian_direction[1]);
 
         // Caculate two mecanum wheel pair vectors
         float vector0 = vpmagni * cos(vptheta);
         float vector1 = vpmagni * sin(vptheta);
 
         // Setting motor speeds
-        float m1 = vector0 + twist->angular.z;
-        float m2 = vector1 - twist->angular.z;
-        float m3 = vector1 + twist->angular.z;
-        float m4 = vector0 - twist->angular.z;
+        float m1 = vector0 - twist->angular.z;
+        float m2 = vector1 + twist->angular.z;
+        float m3 = vector1 - twist->angular.z;
+        float m4 = vector0 + twist->angular.z;
 
         // If the sum vector magnitude goes above one, turn it down
         float summagni = vpmagni + abs(twist->angular.z);

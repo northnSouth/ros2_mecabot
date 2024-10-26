@@ -38,11 +38,11 @@ class EncoderToOdometry : public rclcpp::Node
               switch (states->name[i][4]) {
 
                 case 'f': // x_left
-                  x_left = enc_to_m; break;
+                  x_left = -enc_to_m; break;
                 case 'g': // x_right
                   x_right = enc_to_m; break;
                 case 'o': // y_front
-                  y_front = enc_to_m; break;
+                  y_front = -enc_to_m; break;
                 case 'a': // y_rear
                   y_rear = enc_to_m; break;
 
@@ -56,20 +56,20 @@ class EncoderToOdometry : public rclcpp::Node
 
           // Lowering detail to compensate for noise
           float delta_x1 = x_left - old_x_left;
-          float delta_x2 = -1 * (x_right - old_x_right);
-          float delta_y = -1 * (y_front - old_y_front);
+          float delta_x2 = x_right - old_x_right;
+          float delta_y = y_front - old_y_front;
 
           // Calculating local coordinates update
           local_coords_update.x = (delta_x1 + delta_x2) / 2;
-          local_coords_update.z = (delta_x2 - delta_x1) / (enc_x_to_origin * 2); 
+          // reversed z update to fix reversed orientation issu
+          local_coords_update.z = (delta_x2 - delta_x1) / (enc_x_to_origin * 2) * -1;
           local_coords_update.y = delta_y - enc_y_to_origin * local_coords_update.z;
 
           // Applying local coordinates update to field coordinates
           // Why x and y is decreased? It transformed backwards idk why. Too bad!
+          field_coords.x += local_coords_update.x * cos(field_coords.z) - local_coords_update.y * sin(field_coords.z);
+          field_coords.y += local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
           field_coords.z += local_coords_update.z;
-          field_coords.x -= local_coords_update.x * cos(field_coords.z) - local_coords_update.y * sin(field_coords.z);
-          field_coords.y -= local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
-
 
           // TRANSFORM MESSAGE BROADCASTER
           geometry_msgs::msg::TransformStamped tf_stamped;
