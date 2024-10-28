@@ -43,8 +43,6 @@ class EncoderToOdometry : public rclcpp::Node
                   x_right = enc_to_m; break;
                 case 'o': // y_front
                   y_front = -enc_to_m; break;
-                case 'a': // y_rear
-                  y_rear = enc_to_m; break;
 
               }
             }
@@ -115,10 +113,10 @@ class EncoderToOdometry : public rclcpp::Node
       double z;
     };
     
-    double x_left {}, x_right {}, y_front {}, y_rear {}; // Encoder readings
+    double x_left {}, x_right {}, y_front {}; // Encoder readings
     double old_x_left {}, old_x_right {}, old_y_front {}; // Encoder readings from previous loop
-    const float enc_x_to_origin {0.15}; // Distance between encoder on x axis to robot local origin
-    const float enc_y_to_origin {0.15}; // Distance between encoder on y axis to robot local origin
+    const float enc_x_to_origin {0.4}; // Distance between encoder on x axis to robot local origin
+    const float enc_y_to_origin {0.4}; // Distance between encoder on y axis to robot local origin
     XY_ZRotate field_coords = {0, 0, 0}; // Initialize coordinates relative to the field (global coords)
 };
 

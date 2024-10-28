@@ -12,7 +12,6 @@ JSB:
   ros__parameters:
     joints:
       - y_front_omni_joint
-      - y_rear_omni_joint
       - x_right_omni_joint
       - x_left_omni_joint
       - front_left_mecanum_joint

@@ -47,9 +47,6 @@
   <xacro:gen_omni_wheel name="y_front_omni">
     <material name="grey"/>
   </xacro:gen_omni_wheel>
-  <xacro:gen_omni_wheel name="y_rear_omni">
-    <material name="grey"/>
-  </xacro:gen_omni_wheel>
   <xacro:gen_omni_wheel name="x_right_omni">
     <material name="grey"/>
   </xacro:gen_omni_wheel>
@@ -58,7 +55,7 @@
   </xacro:gen_omni_wheel>
 
   <!-- OMNI WHEEL JOINTS -->
-  <xacro:property name="omni_gap" value="0.15"/>
+  <xacro:property name="omni_gap" value="0.4"/>
   <xacro:property name="omni_joint_friction" value="0.1"/>
   <xacro:property name="omni_joint_damping" value="0"/>
   <joint name="y_front_omni_joint" type="continuous">
@@ -81,14 +78,6 @@
     <origin xyz="0 -${omni_gap} ${omni_radius - mecanum_radius}" rpy="0 0 ${pi}"/>
     <parent link="base_link"/>
     <child link="x_left_omni_link"/>
-    <axis xyz="0 1 0"/>
-    <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
-  </joint>
-
-  <joint name="y_rear_omni_joint" type="continuous">
-    <origin xyz="-${omni_gap} 0 ${omni_radius - mecanum_radius}" rpy="0 0 ${pi / 2}"/>
-    <parent link="base_link"/>
-    <child link="y_rear_omni_link"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="${omni_joint_damping}" friction="${omni_joint_friction}"/>
   </joint>
@@ -159,9 +148,6 @@
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
     <joint name="y_front_omni_joint">
-      <state_interface name="position"/>
-    </joint>
-    <joint name="y_rear_omni_joint">
       <state_interface name="position"/>
     </joint>
     <joint name="x_right_omni_joint">
