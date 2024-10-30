@@ -128,6 +128,12 @@ def generate_launch_description():
     executable='mecabot_move_node'
   )
 
+  # Map a directed map in /tf_static
+  directed_map = Node(
+    package='mecabot_gz',
+    executable='directed_map_broadcaster'
+  )
+
   return LaunchDescription([
     gazebo_as_process,
     TimerAction(
@@ -160,7 +166,7 @@ def generate_launch_description():
     ),
     TimerAction(
       period=8.0,
-      actions=[mecabot_move]
+      actions=[mecabot_move, directed_map]
     )
     
   ])

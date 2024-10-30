@@ -14,6 +14,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(ament_index_cpp REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 # Encoder to Odometry
 add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
@@ -46,6 +48,19 @@ ament_target_dependencies(
   tf2
 )
 
+# Directed Map Broadcaster
+add_executable(directed_map_broadcaster src/directed_map_broadcaster.cpp)
+target_link_libraries(directed_map_broadcaster yaml-cpp)
+ament_target_dependencies(
+  directed_map_broadcaster
+  rclcpp
+  geometry_msgs
+  tf2_ros
+  tf2 
+  yaml-cpp
+  ament_index_cpp
+)
+
 include_directories(include)
 
 if(BUILD_TESTING)
@@ -67,6 +82,7 @@ install(TARGETS
   encoder_to_odometry
   sim_time_forward
   mecabot_move_node
+  directed_map_broadcaster
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -1,0 +1,62 @@
+# point_name:
+# - x
+# - y
+
+world:
+- 0
+- 0
+home_entry:
+- 1.56
+- 0
+center:
+- 1.56
+- 2.7
+bridge:
+- 1.56
+- 4.3
+quad_a:
+- 3.7
+- 2.7
+quad_b:
+- 1.8
+- 4.3
+double_a:
+- 0
+- 2.4
+double_b:
+- 0.6
+- 3.4
+double_c:
+- 0.6
+- 5
+port:
+- 1.56
+- 7.2
+sextuple:
+- 0
+- 7.4
+racks_entry:
+- 2.7
+- 7.2
+racks_drink:
+- 3.7
+- 6.7
+racks_meal:
+- 3.7
+- 9.8
+
+# parent/child
+relations:
+- world/home_entry
+- home_entry/center
+- center/quad_a
+- center/double_a
+- center/bridge
+- bridge/double_b
+- bridge/double_c
+- bridge/quad_b
+- bridge/port
+- port/sextuple
+- port/racks_entry
+- racks_entry/racks_drink
+- racks_entry/racks_meal
