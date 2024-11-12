@@ -1,13 +1,11 @@
 #include <memory>
 #include <cmath>
-#include <rclcpp/logging.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 // Messages
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <geometry_msgs/msg/transform_stamped.hpp>
-#include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <nav_msgs/msg/odometry.hpp>
 
 /*
   Calculating odometry based on 3 
@@ -26,7 +24,10 @@ class EncoderToOdometry : public rclcpp::Node
     {
       RCLCPP_INFO(this->get_logger(), "\033[32mStarting Encoder to Odometry node\033[0m");
       
-      tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+      // Odometry publisher object
+      odom_publisher_ = this->create_publisher
+        <nav_msgs::msg::Odometry>("/odometry", 10);
+
       auto jointStatesCallback =
         [this](sensor_msgs::msg::JointState::UniquePtr states) -> void {
           for (long unsigned int i = 0; i < states->name.size(); i++) {
@@ -48,6 +49,10 @@ class EncoderToOdometry : public rclcpp::Node
             }
           }
 
+          // Save encoder readings for next loop
+          old_x_left = x_left;
+          old_x_right = x_right;
+          old_y_front = y_front;
 
           // ODOMETRY
           XY_ZRotate local_coords_update;
@@ -64,47 +69,48 @@ class EncoderToOdometry : public rclcpp::Node
           local_coords_update.y = delta_y - enc_y_to_origin * local_coords_update.z;
 
           // Applying local coordinates update to field coordinates
-          // Why x and y is decreased? It transformed backwards idk why. Too bad!
           field_coords.x += local_coords_update.x * cos(field_coords.z) - local_coords_update.y * sin(field_coords.z);
           field_coords.y += local_coords_update.x * sin(field_coords.z) + local_coords_update.y * cos(field_coords.z);
           field_coords.z += local_coords_update.z;
 
-          // TRANSFORM MESSAGE BROADCASTER
-          geometry_msgs::msg::TransformStamped tf_stamped;
-          tf_stamped.header.stamp = states->header.stamp;
-          tf_stamped.header.frame_id = "world";
-          tf_stamped.child_frame_id = "base_link";
+          // Odometry message building
+          nav_msgs::msg::Odometry odometry;
+          odometry.header.stamp = states->header.stamp;
+          odometry.header.frame_id = "odom";
+          odometry.child_frame_id = "base_link";
 
-          tf_stamped.transform.translation.x = field_coords.x;
-          tf_stamped.transform.translation.y = field_coords.y;
-          tf_stamped.transform.translation.z = 0.15;
+          odometry.pose.pose.position.x = field_coords.x;
+          odometry.pose.pose.position.y = field_coords.y;
+          odometry.pose.pose.position.z = 0.15;
 
           tf2::Quaternion quater;
           quater.setRPY(0, 0, field_coords.z);
-          tf_stamped.transform.rotation.z = quater.z();
-          tf_stamped.transform.rotation.y = quater.y();
-          tf_stamped.transform.rotation.x = quater.x();
-          tf_stamped.transform.rotation.w = quater.w();
+          odometry.pose.pose.orientation.z = quater.z();
+          odometry.pose.pose.orientation.y = quater.y();
+          odometry.pose.pose.orientation.x = quater.x();
+          odometry.pose.pose.orientation.w = quater.w();
 
-          tf_broadcaster->sendTransform(tf_stamped);
+          odometry.twist.twist.linear.x
+          = odometry.twist.twist.linear.y
+          = odometry.twist.twist.linear.z
+          = odometry.twist.twist.angular.x 
+          = odometry.twist.twist.angular.y
+          = odometry.twist.twist.angular.z 
+          = 0;
+
+          odom_publisher_->publish(odometry);
 
           // RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
           // RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
           // RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
-
-          // Save encoder readings for next loop
-          old_x_left = x_left;
-          old_x_right = x_right;
-          old_y_front = y_front;
         };
 
-      encoder_states_subscriber = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 10, jointStatesCallback);
+      encoder_states_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 10, jointStatesCallback);
     }
 
   private:
-    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr encoder_states_subscriber;
-    rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr transforms_publisher;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr encoder_states_subscriber_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
 
     struct XY_ZRotate // Structure for odometry calculation
     {

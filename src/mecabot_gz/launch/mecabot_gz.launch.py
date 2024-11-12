@@ -110,10 +110,10 @@ def generate_launch_description():
     executable='rviz2'
   )
 
-  # Run encoder to odometry node
-  enc_to_odom = Node(
+  # Run motion_navigator node
+  motion_navigator = Node(
     package='mecabot_gz',
-    executable='encoder_to_odometry'
+    executable='motion_navigator'
   )
 
   # Forward simulation time from gazebo
@@ -156,7 +156,7 @@ def generate_launch_description():
       actions=[
         bot_spawner,
         rviz2,
-        enc_to_odom,
+        motion_navigator,
         gazebo_unpause
       ]
     ),

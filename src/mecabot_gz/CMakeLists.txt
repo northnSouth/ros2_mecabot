@@ -16,17 +16,19 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(control_toolbox REQUIRED)
+
+# Generate custom messages
 
 # Encoder to Odometry
 add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
 ament_target_dependencies(
   encoder_to_odometry
   rclcpp
-  rosgraph_msgs
   sensor_msgs
-  geometry_msgs
-  tf2_ros
   tf2
+  nav_msgs
 )
 
 # Sim Time Forward
@@ -61,6 +63,19 @@ ament_target_dependencies(
   ament_index_cpp
 )
 
+# Motion Navigator
+add_executable(motion_navigator src/motion_navigator.cpp)
+ament_target_dependencies(
+  motion_navigator
+  rclcpp
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  tf2_ros
+  tf2
+  control_toolbox
+)
+
 include_directories(include)
 
 if(BUILD_TESTING)
@@ -83,6 +98,7 @@ install(TARGETS
   sim_time_forward
   mecabot_move_node
   directed_map_broadcaster
+  motion_navigator
   DESTINATION lib/${PROJECT_NAME}
 )
 
