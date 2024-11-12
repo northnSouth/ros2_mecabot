@@ -125,7 +125,8 @@ def generate_launch_description():
   # Run mecabot move node for kinematics
   mecabot_move = Node(
     package='mecabot_gz',
-    executable='mecabot_move_node'
+    executable='mecabot_move_node',
+    parameters=[{'speed_multiplier': 5.0}]
   )
 
   # Map a directed map in /tf_static

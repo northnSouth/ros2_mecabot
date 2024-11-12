@@ -277,8 +277,11 @@ void MotionNavigator::encodersOdometry_(sensor_msgs::msg::JointState::UniquePtr 
       geometry_msgs::msg::Twist msg;
       if ( deltaX || deltaY || deltaTheta ) {
         // Robot in motion
-        msg.linear.x = pid_.computeCommand(deltaX, deltaTime);
-        msg.linear.y = pid_.computeCommand(deltaY, deltaTime);
+        double velX = pid_.computeCommand(deltaX, deltaTime);
+        double velY = pid_.computeCommand(deltaY, deltaTime);
+
+        msg.linear.x = velX * cos(world_yaw_) + velY * sin(world_yaw_);
+        msg.linear.y = -velX * sin(world_yaw_) + velY * cos(world_yaw_);
         msg.angular.z = pid_.computeCommand(deltaTheta, deltaTime);
       } else {
         // Robot stop
