@@ -4,7 +4,7 @@
   <name>mecabot_gz</name>
   <version>0.1.0</version>
   <description>
-    Runs Mecabot in simulated environment of Gazebo Harmonic
+    Runs 4WD mecanum robot in simulated environment of Gazebo Harmonic
   </description>
   <maintainer email="aftitonf66@gmail.com">north</maintainer>
   <license>MIT</license>

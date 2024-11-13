@@ -1,13 +1,31 @@
+/*
+
+  This node is used to create a directed map as static transforms
+  of frames which are landmarks on the map. The map itself is generated
+  based of a YAML file in the package's config directory. The map is
+  a series of parent/child frames.
+
+  TODO: Create a safer YAML parsing implementation
+
+*/
+
+// C++ std libs
 #include <memory>
 #include <string>
-#include <unistd.h>
 
+// RCLCPP utilities
 #include "rclcpp/rclcpp.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
+
+// Messages
 #include "geometry_msgs/msg/transform_stamped.hpp"
+
+// TF2 utilities
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/static_transform_broadcaster.h"
+
+// YAML processor library
 #include "yaml-cpp/yaml.h"
-#include "ament_index_cpp/get_package_share_directory.hpp"
 
 class DirectedMapBroadcaster : public rclcpp::Node
 {
@@ -17,14 +35,17 @@ public:
   {
     RCLCPP_INFO(this->get_logger(), "\033[32mBroadcasting Directed Map\033[0m");
 
+    // Static transforms broadcaster
     static_tf_ =
       std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
 
+    // YAML map config file parser
     for (const auto& point : map_config_["relations"]) {
       std::string pointName = point.as<std::string>();
       std::string parentFrame = pointName.substr(0, pointName.find('/'));
       std::string childFrame = pointName.substr(pointName.find('/') + 1, pointName.length());
 
+      // Map broadcast
       this->broadcast_map(
         parentFrame, // Parent frame
         childFrame, // Child frame
@@ -35,12 +56,13 @@ public:
   }
 
 private:
-  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_;
-  YAML::Node map_config_ = YAML::LoadFile(
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_; // Static transforms broadcaster object
+  YAML::Node map_config_ = YAML::LoadFile( // YAML file loader
     ament_index_cpp::get_package_share_directory("mecabot_gz")
     + "/config/directed_map.yaml"
   );
 
+  // Map broadcaster function, basically builds a typical static transforms message
   void broadcast_map(std::string parent, std::string child, float x, float y) {
     geometry_msgs::msg::TransformStamped t;
     

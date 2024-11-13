@@ -1,22 +1,30 @@
-#include <memory>
-#include <cmath>
-#include <rclcpp/rclcpp.hpp>
-
-// Messages
-#include <sensor_msgs/msg/joint_state.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <nav_msgs/msg/odometry.hpp>
-
 /*
-  Calculating odometry based on 3 
-  passive rotary encoders readings 
+  DEPRECATED, since odometry data is so far only used
+  in autonomous feature, this functionality is merged into
+  the motion_navigator node. 
+
+  Calculating odometry based on 3 rotary encoders readings. 
 */
 
-bool hasSuffix (std::string const&, std::string const&); // Check if a string has a certain suffix
-bool hasPrefix (std::string const&, std::string const&); // Check if a string has a certain prefix
+// C++ std libs
+#include <memory>
+#include <cmath>
 
+// RCLCPP utilities
+#include "rclcpp/rclcpp.hpp"
 
-// Node class
+// Messages
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "nav_msgs/msg/odometry.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+
+// Function to check for suffix in a string
+bool hasSuffix (std::string const &fullString, std::string const &suffix) {
+  if (fullString.length() >= suffix.length()) {
+    return (0 == fullString.compare (fullString.length() - suffix.length(), suffix.length(), suffix));
+  } else { return false; }
+}
+
 class EncoderToOdometry : public rclcpp::Node
 {
   public:
@@ -24,10 +32,15 @@ class EncoderToOdometry : public rclcpp::Node
     {
       RCLCPP_INFO(this->get_logger(), "\033[32mStarting Encoder to Odometry node\033[0m");
       
-      // Odometry publisher object
+      // Odometry publisher
       odom_publisher_ = this->create_publisher
         <nav_msgs::msg::Odometry>("/odometry", 10);
 
+      /*
+        Joint states callback, this is the callback function that calculates Odometry
+        based on 3 rotary encoder readings.
+        Check README for the algorithm.
+      */
       auto jointStatesCallback =
         [this](sensor_msgs::msg::JointState::UniquePtr states) -> void {
           for (long unsigned int i = 0; i < states->name.size(); i++) {
@@ -98,21 +111,17 @@ class EncoderToOdometry : public rclcpp::Node
           = odometry.twist.twist.angular.z 
           = 0;
 
-          odom_publisher_->publish(odometry);
-
-          // RCLCPP_INFO(this->get_logger(), "x: %lf", field_coords.x);
-          // RCLCPP_INFO(this->get_logger(), "y: %lf", field_coords.y);
-          // RCLCPP_INFO(this->get_logger(), "z: %lf", field_coords.z);
+          odom_publisher_->publish(odometry);;
         };
 
       encoder_states_subscriber_ = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 10, jointStatesCallback);
     }
 
   private:
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr encoder_states_subscriber_;
-    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr encoder_states_subscriber_; // Joint states subscriber object
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_; // Odometry publisher object
 
-    struct XY_ZRotate // Structure for odometry calculation
+    struct XY_ZRotate
     {
       double x;
       double y;
@@ -126,27 +135,10 @@ class EncoderToOdometry : public rclcpp::Node
     XY_ZRotate field_coords = {0, 0, 0}; // Initialize coordinates relative to the field (global coords)
 };
 
-
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<EncoderToOdometry>());
   rclcpp::shutdown();
   return 0;
-}
-
-
-// FUNCTION BODIES
-bool hasPrefix (std::string const &fullString, std::string const &prefix)
-{
-    if (fullString.length() >= prefix.length()) {
-        return (0 == fullString.compare (0, prefix.length(), prefix));
-    } else { return false; }
-}
-
-bool hasSuffix (std::string const &fullString, std::string const &suffix)
-{
-    if (fullString.length() >= suffix.length()) {
-        return (0 == fullString.compare (fullString.length() - suffix.length(), suffix.length(), suffix));
-    } else { return false; }
 }

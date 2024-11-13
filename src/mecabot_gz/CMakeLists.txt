@@ -19,64 +19,53 @@ find_package(yaml-cpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(control_toolbox REQUIRED)
 
-# Generate custom messages
-
 # Encoder to Odometry
 add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
-ament_target_dependencies(
-  encoder_to_odometry
+ament_target_dependencies( encoder_to_odometry
   rclcpp
   sensor_msgs
-  tf2
   nav_msgs
+  tf2
 )
 
 # Sim Time Forward
 add_executable(sim_time_forward src/sim_time_forward.cpp)
-ament_target_dependencies(
-  sim_time_forward
+ament_target_dependencies( sim_time_forward
   rclcpp
   rosgraph_msgs
 )
 
 # Mecabot Move Node
 add_executable(mecabot_move_node src/mecabot_move_node.cpp)
-ament_target_dependencies(
-  mecabot_move_node
+ament_target_dependencies( mecabot_move_node
   rclcpp
   std_msgs
   geometry_msgs
-  tf2_ros
-  tf2
 )
 
 # Directed Map Broadcaster
 add_executable(directed_map_broadcaster src/directed_map_broadcaster.cpp)
 target_link_libraries(directed_map_broadcaster yaml-cpp)
-ament_target_dependencies(
-  directed_map_broadcaster
+ament_target_dependencies( directed_map_broadcaster
   rclcpp
+  ament_index_cpp
   geometry_msgs
   tf2_ros
   tf2 
   yaml-cpp
-  ament_index_cpp
 )
 
 # Motion Navigator
 add_executable(motion_navigator src/motion_navigator.cpp)
-ament_target_dependencies(
-  motion_navigator
+ament_target_dependencies( motion_navigator
   rclcpp
+  control_toolbox
   std_msgs
   geometry_msgs
   sensor_msgs
   tf2_ros
   tf2
-  control_toolbox
 )
-
-include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -94,7 +83,6 @@ endif()
 
 # Build Executables
 install(TARGETS
-  encoder_to_odometry
   sim_time_forward
   mecabot_move_node
   directed_map_broadcaster
