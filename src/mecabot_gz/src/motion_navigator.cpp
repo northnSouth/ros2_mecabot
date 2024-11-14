@@ -125,6 +125,10 @@ public:
               odometry_goal_.x, odometry_goal_.y, odometry_goal_.z);
           
           } else if (cmd_args_.at(0) == "idle") { // Idle state
+            // Stops the robot
+            geometry_msgs::msg::Twist msg;
+            motion_publisher_->publish(msg);
+
             RCLCPP_INFO(this->get_logger(), "\033[43m\033[37m   Idling...   \033[0m");
           } else if (cmd_args_.at(0) == "odom_reset") { // Reset odometry
             RCLCPP_INFO(this->get_logger(), "\033[43m\033[37m   Resetting Odometry...   \033[0m");
@@ -198,129 +202,120 @@ double dblForceZero (double dbl, double thresh) {
 void MotionNavigator::encodersOdometry_(sensor_msgs::msg::JointState::UniquePtr states)
 {
 
-  if (cmd_args_.at(0) != "laser") {
+  /// ENCODER ACQUISITION BLOCK ///
 
-    /// ENCODER ACQUISITION BLOCK ///
-
-    double x_left {}, x_right {}, y_front {}; // Real-time encoder readings
-    for (long unsigned int i = 0; i < states->name.size(); i++) {
-      const double enc_to_m {states->position[i] * 0.1}; // 0.1 is rotation angle to distance
-
-      if (hasSuffix(states->name[i], "omni_joint")) {
-        // Convert rotation angle to distance traveled
-        switch (states->name[i][4]) {
-          case 'f': // x_left
-            x_left = -enc_to_m; break;
-          case 'g': // x_right
-            x_right = enc_to_m; break;
-          case 'o': // y_front
-            y_front = -enc_to_m; break;
-        }
+  double x_left {}, x_right {}, y_front {}; // Real-time encoder readings
+  for (long unsigned int i = 0; i < states->name.size(); i++) {
+    const double enc_to_m {states->position[i] * 0.1}; // 0.1 is rotation angle to distance
+    if (hasSuffix(states->name[i], "omni_joint")) {
+      // Convert rotation angle to distance traveled
+      switch (states->name[i][4]) {
+        case 'f': // x_left
+          x_left = -enc_to_m; break;
+        case 'g': // x_right
+          x_right = enc_to_m; break;
+        case 'o': // y_front
+          y_front = -enc_to_m; break;
       }
     }
+  }
 
-    /// ODOMETRY CALCULATION BLOCK ///
+  /// ODOMETRY CALCULATION BLOCK ///
 
-    /*
-      old_* variables is updated during an odom_reset command since the 
-      command is used to initialize odometry to zero and start reading 
-      from the encoders' current state.
-    */
-
-    if (cmd_args_.at(0) == "odom_reset") {
-      old_x_left_ = x_left;
-      old_x_right_ = x_right;
-      old_y_front_ = y_front;
-    }
-
-    XY_ZRotate local_coords_update;
-
-    // Casting double to float to compensate for noise
-    float delta_x1 = x_left - old_x_left_;
-    float delta_x2 = x_right - old_x_right_;
-    float delta_y = y_front - old_y_front_;
-
-    // Calculating local coordinates update
-    // Reversed theta update to fix reversed orientation issue
-    local_coords_update.x = (delta_x1 + delta_x2) / 2;
-    local_coords_update.z = (delta_x2 - delta_x1) / (enc_x_to_origin_ * 2) * -1;
-    local_coords_update.y = delta_y - enc_y_to_origin_ * local_coords_update.z;
-
-    // Save encoder readings for next iteration
+  /*
+    old_* variables is updated during an odom_reset command since the 
+    command is used to initialize odometry to zero and start reading 
+    from the encoders' current state.
+  */
+  if (cmd_args_.at(0) == "odom_reset") {
     old_x_left_ = x_left;
     old_x_right_ = x_right;
     old_y_front_ = y_front;
-
-    // Build transform messages
-    world_tfs_.header.stamp = states->header.stamp;
-    world_tfs_.header.frame_id = "world";
-    world_tfs_.child_frame_id = "base_link";
-
-    // Applying local coordinates update to world_tfs_ coordinates
-    world_yaw_ += local_coords_update.z;
-    world_tfs_.transform.translation.x += 
-      local_coords_update.x * cos(world_yaw_) - local_coords_update.y * sin(world_yaw_);
-    world_tfs_.transform.translation.y += 
-      local_coords_update.x * sin(world_yaw_) + local_coords_update.y * cos(world_yaw_);
-    world_tfs_.transform.translation.z = 0.15;
-
-    // Calculating quaternion rotation
-    tf2::Quaternion q;
-    q.setRPY(0, 0, world_yaw_);
-    world_tfs_.transform.rotation.x = q.x();
-    world_tfs_.transform.rotation.y = q.y();
-    world_tfs_.transform.rotation.z = q.z();
-    world_tfs_.transform.rotation.w = q.w();
-
-    // Broadcast world to base_link transforms
-    tf2_broadcaster_->sendTransform(world_tfs_);
-
-    /// ODOMETRY-BASED MOTION BLOCK ///
-
-    if (cmd_args_.at(0) == "odometry") {
-      
-      /*
-        This part basically tracks distance between the robot to the goal coordinate
-        then checks if the robot is close enough to the goal coords.
-
-        Because of simulator noise, i had to check if the error value is larger than 
-        the DBL_CUTOFF, if so then it is rounded to zero.
-
-        PID is used to calculate x, y, theta velocities based on error.
-      */
-
-      const double DBL_CUTOFF = 1e-5;
-
-      double deltaX = dblForceZero(odometry_goal_.x - world_tfs_.transform.translation.x, DBL_CUTOFF);
-      double deltaY = dblForceZero(odometry_goal_.y - world_tfs_.transform.translation.y, DBL_CUTOFF);
-      double deltaTheta = dblForceZero(odometry_goal_.z - world_yaw_, DBL_CUTOFF);
-      uint64_t deltaTime = states->header.stamp.nanosec - last_time_;
-
-      RCLCPP_INFO(this->get_logger(), "%f %f %f", deltaX, deltaY, deltaTheta);
-
-      geometry_msgs::msg::Twist msg;
-      if ( deltaX || deltaY || deltaTheta ) {
-        // Robot in motion
-        double velX = pid_.computeCommand(deltaX, deltaTime);
-        double velY = pid_.computeCommand(deltaY, deltaTime);
-
-        msg.linear.x = velX * cos(world_yaw_) + velY * sin(world_yaw_);
-        msg.linear.y = -velX * sin(world_yaw_) + velY * cos(world_yaw_);
-        msg.angular.z = pid_.computeCommand(deltaTheta, deltaTime);
-      } else {
-        // Robot stop
-        msg.linear.x = 0;
-        msg.linear.y = 0;
-        msg.angular.z = 0;
-        cmd_args_ = {"idle"};
-        RCLCPP_INFO(this->get_logger(), 
-          "\033[42m\033[37m   Arrived on Target   \033[0m\nx: %f y: %f yaw: %f",  
-            odometry_goal_.x, odometry_goal_.y, odometry_goal_.z);
-      } motion_publisher_->publish(msg);
-    }
-
-    last_time_ = states->header.stamp.nanosec;
   }
+
+  XY_ZRotate local_coords_update;
+
+  // Casting double to float to compensate for noise
+  float delta_x1 = x_left - old_x_left_;
+  float delta_x2 = x_right - old_x_right_;
+  float delta_y = y_front - old_y_front_;
+
+  // Calculating local coordinates update
+  // Reversed theta update to fix reversed orientation issue
+  local_coords_update.x = (delta_x1 + delta_x2) / 2;
+  local_coords_update.z = (delta_x2 - delta_x1) / (enc_x_to_origin_ * 2) * -1;
+  local_coords_update.y = delta_y - enc_y_to_origin_ * local_coords_update.z;
+
+  // Save encoder readings for next iteration
+  old_x_left_ = x_left;
+  old_x_right_ = x_right;
+  old_y_front_ = y_front;
+
+  // Build transform messages
+  world_tfs_.header.stamp = states->header.stamp;
+  world_tfs_.header.frame_id = "world";
+  world_tfs_.child_frame_id = "base_link";
+  
+  // Applying local coordinates update to world_tfs_ coordinates
+  world_yaw_ += local_coords_update.z;
+  world_tfs_.transform.translation.x += 
+    local_coords_update.x * cos(world_yaw_) - local_coords_update.y * sin(world_yaw_);
+  world_tfs_.transform.translation.y += 
+    local_coords_update.x * sin(world_yaw_) + local_coords_update.y * cos(world_yaw_);
+  world_tfs_.transform.translation.z = 0.15;
+
+  // Calculating quaternion rotation
+  tf2::Quaternion q;
+  q.setRPY(0, 0, world_yaw_);
+  world_tfs_.transform.rotation.x = q.x();
+  world_tfs_.transform.rotation.y = q.y();
+  world_tfs_.transform.rotation.z = q.z();
+  world_tfs_.transform.rotation.w = q.w();
+
+  // Broadcast world to base_link transforms
+  tf2_broadcaster_->sendTransform(world_tfs_);
+
+  /// ODOMETRY-BASED MOTION BLOCK ///
+
+  if (cmd_args_.at(0) == "odometry") {
+    
+    /*
+      This part basically tracks distance between the robot to the goal coordinate
+      then checks if the robot is close enough to the goal coords.
+      Because of simulator noise, i had to check if the error value is larger than 
+      the DBL_CUTOFF, if so then it is rounded to zero.
+      PID is used to calculate x, y, theta velocities based on error.
+    */
+
+    const double DBL_CUTOFF = 1e-5;
+    double deltaX = dblForceZero(odometry_goal_.x - world_tfs_.transform.translation.x, DBL_CUTOFF);
+    double deltaY = dblForceZero(odometry_goal_.y - world_tfs_.transform.translation.y, DBL_CUTOFF);
+    double deltaTheta = dblForceZero(odometry_goal_.z - world_yaw_, DBL_CUTOFF);
+    uint64_t deltaTime = states->header.stamp.nanosec - last_time_;
+
+    RCLCPP_INFO(this->get_logger(), "%f %f %f", deltaX, deltaY, deltaTheta);
+    geometry_msgs::msg::Twist msg;
+    if ( deltaX || deltaY || deltaTheta ) {
+      // Robot in motion
+      double velX = pid_.computeCommand(deltaX, deltaTime);
+      double velY = pid_.computeCommand(deltaY, deltaTime);
+
+      msg.linear.x = velX * cos(world_yaw_) + velY * sin(world_yaw_);
+      msg.linear.y = -velX * sin(world_yaw_) + velY * cos(world_yaw_);
+      msg.angular.z = pid_.computeCommand(deltaTheta, deltaTime);
+    } else {
+      // Robot stop
+      msg.linear.x = 0;
+      msg.linear.y = 0;
+      msg.angular.z = 0;
+      cmd_args_ = {"idle"};
+
+      RCLCPP_INFO(this->get_logger(), 
+        "\033[42m\033[37m   Arrived on Target   \033[0m\nx: %f y: %f yaw: %f",  
+          odometry_goal_.x, odometry_goal_.y, odometry_goal_.z);
+    } motion_publisher_->publish(msg);
+  }
+  last_time_ = states->header.stamp.nanosec;
 }
 
 int main(int argc, char** argv)
