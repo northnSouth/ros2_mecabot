@@ -36,8 +36,8 @@ ament_target_dependencies( sim_time_forward
 )
 
 # Mecabot Move Node
-add_executable(mecabot_move_node src/mecabot_move_node.cpp)
-ament_target_dependencies( mecabot_move_node
+add_executable(kinematics_control src/kinematics_control.cpp)
+ament_target_dependencies( kinematics_control
   rclcpp
   std_msgs
   geometry_msgs
@@ -55,9 +55,9 @@ ament_target_dependencies( directed_map_broadcaster
   yaml-cpp
 )
 
-# Motion Navigator
-add_executable(motion_navigator src/motion_navigator.cpp)
-ament_target_dependencies( motion_navigator
+# Motion Control
+add_executable(motion_control src/motion_control.cpp)
+ament_target_dependencies( motion_control
   rclcpp
   control_toolbox
   std_msgs
@@ -65,6 +65,16 @@ ament_target_dependencies( motion_navigator
   sensor_msgs
   tf2_ros
   tf2
+)
+
+# Path Planner
+add_executable(path_planner src/path_planner.cpp)
+target_link_libraries(path_planner yaml-cpp)
+ament_target_dependencies( path_planner
+  rclcpp
+  ament_index_cpp
+  std_msgs
+  yaml-cpp
 )
 
 if(BUILD_TESTING)
@@ -84,9 +94,10 @@ endif()
 # Build Executables
 install(TARGETS
   sim_time_forward
-  mecabot_move_node
+  kinematics_control
   directed_map_broadcaster
-  motion_navigator
+  motion_control
+  path_planner
   DESTINATION lib/${PROJECT_NAME}
 )
 

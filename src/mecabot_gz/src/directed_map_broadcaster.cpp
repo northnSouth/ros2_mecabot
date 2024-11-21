@@ -40,10 +40,10 @@ public:
       std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
 
     // YAML map config file parser
-    for (const auto& point : map_config_["relations"]) {
-      std::string pointName = point.as<std::string>();
-      std::string parentFrame = pointName.substr(0, pointName.find('/'));
-      std::string childFrame = pointName.substr(pointName.find('/') + 1, pointName.length());
+    for (const auto& joint : map_config_["relations"]) {
+      std::string jointPair = joint.as<std::string>();
+      std::string parentFrame = jointPair.substr(0, jointPair.find('/'));
+      std::string childFrame = jointPair.substr(jointPair.find('/') + 1, jointPair.length());
 
       // Map broadcast
       this->broadcast_map(

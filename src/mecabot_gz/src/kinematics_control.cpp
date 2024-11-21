@@ -24,9 +24,9 @@ class MecabotMoveNode : public rclcpp::Node
 {
 public:
   MecabotMoveNode()
-  : Node("mecabot_move")
+  : Node("kinematics_control")
   {
-    RCLCPP_INFO(this->get_logger(), "\033[32mStarting Mecabot Move node\033[0m");
+    RCLCPP_INFO(this->get_logger(), "\033[32mStarting Kinematics Control\033[0m");
     
     // Declare parameter
     this->declare_parameter<float>("speed_multiplier", 1);

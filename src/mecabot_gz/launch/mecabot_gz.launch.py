@@ -110,10 +110,11 @@ def generate_launch_description():
     executable='rviz2'
   )
 
-  # Run motion_navigator node
+  # Run motion control node
   motion_navigator = Node(
     package='mecabot_gz',
-    executable='motion_navigator'
+    executable='motion_control',
+    parameters=[{'pid_kp': 5.0}]
   )
 
   # Forward simulation time from gazebo
@@ -122,10 +123,10 @@ def generate_launch_description():
     executable='sim_time_forward'
   )
 
-  # Run mecabot move node for kinematics
+  # Run kinematics control node
   mecabot_move = Node(
     package='mecabot_gz',
-    executable='mecabot_move_node',
+    executable='kinematics_control',
     parameters=[{'speed_multiplier': 5.0}]
   )
 
