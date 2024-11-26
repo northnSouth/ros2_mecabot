@@ -1,22 +1,22 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node # Node launch description
-from launch.actions import ExecuteProcess # Duh
-from launch.actions import TimerAction # Launch delay timer
-from ament_index_python import get_package_share_directory # Get package directory
-import os # Joining paths
-import xacro # XACRO utilities
-import math # Duh
-from launch.substitutions import FindExecutable # So the logs will show where process binary is located
+from launch_ros.actions import Node
+from launch.actions import ExecuteProcess 
+from launch.actions import TimerAction 
+from ament_index_python import get_package_share_directory 
+import os 
+import xacro 
+import math
+from launch.substitutions import FindExecutable 
+
+package_name = 'mecabot_gz'
 
 def generate_launch_description():
 
-  # Read XACRO file of the robot
   robot_desc = xacro.process_file(
-    os.path.join(get_package_share_directory('mecabot_gz'), 
+    os.path.join(get_package_share_directory(package_name), 
                 'robot_desc/mecabot_gz.main.xacro')
   ).toprettyxml(indent='  ')
 
-  # Run robot_state_publisher
   robot_state_publisher = Node(
     package='robot_state_publisher',
     executable='robot_state_publisher',
@@ -26,7 +26,6 @@ def generate_launch_description():
     }]
   )
 
-  # Launch Gazebo simulator with empty world
   gazebo_as_process = ExecuteProcess(
     cmd=[[
       FindExecutable(name="ros2"),
@@ -38,7 +37,6 @@ def generate_launch_description():
     shell=True
   )
 
-  # Unpause Gazebo for ROS2 Controller activation
   gazebo_unpause = ExecuteProcess(
     cmd=[[
       FindExecutable(name="ros2"),
@@ -50,23 +48,21 @@ def generate_launch_description():
     shell=True
   )
 
-  # ROS2 Controller activation
   ros2c_activate = Node(
     package="controller_manager",
     executable="spawner",
     arguments=
     [
-      "JSB", # joint_state_broadcaster
-      "velo_c" # velocity_controllers
+      "JSB",
+      "velo_c"
     ]
   )
 
-  # Spawn robot in Gazebo from /robot_description
   bot_spawner = Node(
     package='ros_gz_sim',
     executable='create',
     parameters=[{
-      'name': 'mecabot_gz',
+      'name': package_name,
       'world': 'empty',
       'topic': '/robot_description',
       'x': 5.25,
@@ -76,13 +72,11 @@ def generate_launch_description():
     }]
   )
 
-  # Read arena xacro file
   arena_desc = xacro.process_file(
-    os.path.join(get_package_share_directory('mecabot_gz'), 
+    os.path.join(get_package_share_directory(package_name), 
                 'world_desc/lks_arena.main.xacro')
   ).toprettyxml(indent='  ')
 
-  # Spawn arena in Gazebo from file
   arena_spawner = Node(
     package='ros_gz_sim',
     executable='create',
@@ -94,7 +88,6 @@ def generate_launch_description():
     }]
   )
 
-  # Bridge Gazebo topics and services to ROS2
   ros_gz_bridge = Node(
     package='ros_gz_bridge',
     executable='parameter_bridge',
@@ -104,36 +97,41 @@ def generate_launch_description():
     ]
   )
 
-  # Run rviz2
   rviz2 = Node(
     package='rviz2',
     executable='rviz2'
   )
 
-  # Run motion control node
-  motion_navigator = Node(
-    package='mecabot_gz',
-    executable='motion_control',
-    parameters=[{'pid_kp': 5.0}]
+  trajectory_master = Node(
+    package=package_name,
+    executable='trajectory_master',
+    parameters=[{'pid_kp': 8.0}]
   )
 
-  # Forward simulation time from gazebo
   sim_time_forward = Node(
-    package='mecabot_gz',
+    package=package_name,
     executable='sim_time_forward'
   )
 
-  # Run kinematics control node
-  mecabot_move = Node(
-    package='mecabot_gz',
+  kinematics_control = Node(
+    package=package_name,
     executable='kinematics_control',
     parameters=[{'speed_multiplier': 5.0}]
   )
 
-  # Map a directed map in /tf_static
+  odometry_worker = Node(
+    package=package_name,
+    executable='odometry_worker'
+  )
+
   directed_map = Node(
-    package='mecabot_gz',
+    package=package_name,
     executable='directed_map_broadcaster'
+  )
+
+  directed_pathfinder = Node(
+    package=package_name,
+    executable='directed_pathfinder'
   )
 
   return LaunchDescription([
@@ -142,7 +140,8 @@ def generate_launch_description():
       period=1.0,
       actions=[
         ros_gz_bridge,
-        sim_time_forward
+        sim_time_forward,
+        arena_spawner
       ]
     ),
     TimerAction(
@@ -151,24 +150,25 @@ def generate_launch_description():
     ),
     TimerAction(
       period=3.0,
-      actions=[arena_spawner]
-    ),
-    TimerAction(
-      period=4.0,
       actions=[
         bot_spawner,
         rviz2,
-        motion_navigator,
         gazebo_unpause
       ]
     ),
     TimerAction(
-      period=5.0,
+      period=4.0,
       actions=[ros2c_activate]
     ),
     TimerAction(
-      period=8.0,
-      actions=[mecabot_move, directed_map]
+      period=5.0,
+      actions=[
+        odometry_worker,
+        trajectory_master,
+        kinematics_control,
+        directed_map,
+        directed_pathfinder
+      ]
     )
     
   ])

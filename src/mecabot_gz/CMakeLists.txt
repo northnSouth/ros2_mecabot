@@ -16,26 +16,23 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(control_toolbox REQUIRED)
 
-# Encoder to Odometry
-add_executable(encoder_to_odometry src/encoder_to_odometry.cpp)
-ament_target_dependencies( encoder_to_odometry
+add_executable(odometry_worker src/odometry_worker.cpp)
+ament_target_dependencies( odometry_worker
   rclcpp
   sensor_msgs
-  nav_msgs
+  geometry_msgs
+  tf2_ros
   tf2
 )
 
-# Sim Time Forward
 add_executable(sim_time_forward src/sim_time_forward.cpp)
 ament_target_dependencies( sim_time_forward
   rclcpp
   rosgraph_msgs
 )
 
-# Mecabot Move Node
 add_executable(kinematics_control src/kinematics_control.cpp)
 ament_target_dependencies( kinematics_control
   rclcpp
@@ -43,34 +40,31 @@ ament_target_dependencies( kinematics_control
   geometry_msgs
 )
 
-# Directed Map Broadcaster
 add_executable(directed_map_broadcaster src/directed_map_broadcaster.cpp)
 target_link_libraries(directed_map_broadcaster yaml-cpp)
 ament_target_dependencies( directed_map_broadcaster
   rclcpp
+  yaml-cpp
   ament_index_cpp
   geometry_msgs
   tf2_ros
   tf2 
-  yaml-cpp
 )
 
-# Motion Control
-add_executable(motion_control src/motion_control.cpp)
-ament_target_dependencies( motion_control
+add_executable(trajectory_master src/trajectory_master.cpp)
+ament_target_dependencies( trajectory_master
   rclcpp
   control_toolbox
-  std_msgs
   geometry_msgs
   sensor_msgs
+  std_msgs
   tf2_ros
   tf2
 )
 
-# Path Planner
-add_executable(path_planner src/path_planner.cpp)
-target_link_libraries(path_planner yaml-cpp)
-ament_target_dependencies( path_planner
+add_executable(directed_pathfinder src/directed_pathfinder.cpp)
+target_link_libraries(directed_pathfinder yaml-cpp)
+ament_target_dependencies( directed_pathfinder
   rclcpp
   ament_index_cpp
   std_msgs
@@ -96,8 +90,9 @@ install(TARGETS
   sim_time_forward
   kinematics_control
   directed_map_broadcaster
-  motion_control
-  path_planner
+  trajectory_master
+  directed_pathfinder
+  odometry_worker
   DESTINATION lib/${PROJECT_NAME}
 )
 

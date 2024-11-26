@@ -137,7 +137,7 @@
     <plugin
       name="gz_ros2_control::GazeboSimROS2ControlPlugin"
       filename="libgz_ros2_control-system">
-      <parameters>$(find mecabot_gz)/config/test_controller.yaml</parameters>  
+      <parameters>$(find mecabot_gz)/config/controller_config.yaml</parameters>  
     </plugin>
 
   </gazebo>
