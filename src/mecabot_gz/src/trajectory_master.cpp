@@ -78,6 +78,7 @@ private:
 
   CommandArgs cmd_args_;
   float old_tf_time_{};
+  float point_goal_x_{}, point_goal_y_{}, point_goal_theta_{};
   const std::string IDLE{"idle"}, RUN{"in_motion"}, DONE{"arrived"};
 
   void trajectoryExecutor_();
@@ -102,18 +103,72 @@ void TrajectoryMaster::commandParser_(std_msgs::msg::String::UniquePtr command)
 
     while(std::getline(str_args, token, ',')) {cmd_args_.str_args.push_back(token);}
     while(std::getline(num_args, token, ',')) {cmd_args_.num_args.push_back(std::stof(token));}
-  } catch (const std::exception &e) {
-    RCLCPP_ERROR(this->get_logger(), "Invalid command message");
-  }
+  } catch (const std::exception &e) { RCLCPP_ERROR(this->get_logger(), "Invalid command message"); return;}
 
   if (cmd_args_.command == "point") {
-    RCLCPP_INFO(this->get_logger(), 
-      "\033[43m\033[37m   In Motion   \033[0m\n[Point to Point] ref: %s x: %f y: %f yaw: %f", 
-      cmd_args_.str_args.at(0).c_str(), // reference 
-      cmd_args_.num_args.at(0), // x
-      cmd_args_.num_args.at(1), // y
-      cmd_args_.num_args.at(2) // yaw
-    );
+
+    if (cmd_args_.str_args.empty()) {
+      cmd_args_.command = "idle";
+      RCLCPP_ERROR(
+        this->get_logger(), 
+        "%s command cannot have empty string argument, returning to idle",
+        cmd_args_.command.c_str());
+      return;
+    }
+
+    if (cmd_args_.num_args.empty()) {
+      cmd_args_.command = "idle";
+      RCLCPP_ERROR(
+        this->get_logger(), 
+        "%s command cannot have empty numeric argument, returning to idle",
+        cmd_args_.command.c_str());
+      return;
+    }
+
+    geometry_msgs::msg::TransformStamped absolute_coords;
+
+    try {
+      absolute_coords = tf2_buffer_->lookupTransform(
+      "world", "base_link", tf2::TimePointZero);
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_WARN(
+        this->get_logger(), "Could not find transforms from %s to %s",
+        "base_link", "world");
+      return;
+    }
+
+    // converts quaternion rotation to euler to get the yaw
+    auto rotation = absolute_coords.transform.rotation;
+    float absolute_yaw = 
+      std::atan2(2.0 * (rotation.w * rotation.z + rotation.x * rotation.y), 
+      1.0 - 2.0 * (rotation.y * rotation.y + rotation.z * rotation.z));
+
+    std::string reference_mode = cmd_args_.str_args.at(0);
+    auto absolute_translation = absolute_coords.transform.translation;
+
+    if (reference_mode == "abs") {
+      point_goal_x_ = cmd_args_.num_args.at(0);
+      point_goal_y_ = cmd_args_.num_args.at(1);
+      point_goal_theta_ = cmd_args_.num_args.at(2);
+
+    } else if (reference_mode == "rel") {
+      // rotated clockwise to follow robot's relative coordinate reference
+      point_goal_x_ = cmd_args_.num_args.at(0) 
+      + absolute_translation.x * cos(absolute_yaw) + absolute_translation.y * -sin(absolute_yaw);
+
+      point_goal_y_ = cmd_args_.num_args.at(1)
+      + absolute_translation.x * sin(absolute_yaw) + absolute_translation.y * cos(absolute_yaw);
+
+      point_goal_theta_ = cmd_args_.num_args.at(2) + absolute_yaw;
+
+    } else {
+      cmd_args_.command = "idle";
+      RCLCPP_WARN(
+        this->get_logger(), 
+        "%s command have invalid reference mode set, returning to idle",
+        cmd_args_.command.c_str());
+      return;
+    }
 
     float p{}, i{}, d{}, i_max{}, i_min{};
     this->get_parameter("pid_kp", p);
@@ -122,6 +177,14 @@ void TrajectoryMaster::commandParser_(std_msgs::msg::String::UniquePtr command)
     this->get_parameter("pid_i_max", i_max);
     this->get_parameter("pid_i_min", i_min); 
     pid_.setGains(p, i, d, i_max, i_min);
+
+    RCLCPP_INFO(this->get_logger(), 
+      "\033[43m\033[37m   In Motion   \033[0m\n[Point to Point] ref: %s x: %f y: %f yaw: %f", 
+      reference_mode.c_str(), 
+      point_goal_x_,
+      point_goal_y_, 
+      point_goal_theta_
+    );
 
     cmdStatPub_(RUN);
 
@@ -139,22 +202,6 @@ void TrajectoryMaster::commandParser_(std_msgs::msg::String::UniquePtr command)
 void TrajectoryMaster::trajectoryExecutor_()
 {
   if (cmd_args_.command == "point") {
-
-    if (cmd_args_.str_args.empty()) {
-      RCLCPP_WARN(
-        this->get_logger(), 
-        "%s command cannot have empty string argument",
-        cmd_args_.command.c_str());
-      return;
-    }
-
-    if (cmd_args_.num_args.empty()) {
-      RCLCPP_WARN(
-        this->get_logger(), 
-        "%s command cannot have empty numeric argument",
-        cmd_args_.command.c_str());
-      return;
-    }
 
     geometry_msgs::msg::TransformStamped absolute_coords;
     
@@ -174,31 +221,10 @@ void TrajectoryMaster::trajectoryExecutor_()
       std::atan2(2.0 * (rotation.w * rotation.z + rotation.x * rotation.y), 
       1.0 - 2.0 * (rotation.y * rotation.y + rotation.z * rotation.z));
 
-    float goal_x{}; float goal_y{}; float goal_theta{};
-    std::string reference_mode = cmd_args_.str_args.at(0);
-
-    if (reference_mode == "abs") { 
-      goal_x = cmd_args_.num_args.at(0);
-      goal_y = cmd_args_.num_args.at(1);
-      goal_theta = cmd_args_.num_args.at(2);
-      
-    } else if (reference_mode == "rel") {
-      goal_x = cmd_args_.num_args.at(0) + absolute_coords.transform.translation.x;
-      goal_y = cmd_args_.num_args.at(1) + absolute_coords.transform.translation.y;
-      goal_theta = cmd_args_.num_args.at(2) + absolute_yaw;
-    
-    } else {
-      RCLCPP_WARN(
-        this->get_logger(), 
-        "%s command have invalid reference mode set",
-        cmd_args_.command.c_str());
-      return;
-    }
-  
     const double EPSILON = 1e-4;
-    double deltaX = goal_x - absolute_coords.transform.translation.x;
-    double deltaY = goal_y - absolute_coords.transform.translation.y;
-    double deltaTheta = goal_theta - absolute_yaw;
+    double deltaX = point_goal_x_ - absolute_coords.transform.translation.x;
+    double deltaY = point_goal_y_ - absolute_coords.transform.translation.y;
+    double deltaTheta = point_goal_theta_ - absolute_yaw;
     uint64_t deltaTime = absolute_coords.header.stamp.nanosec - old_tf_time_;
   
     geometry_msgs::msg::Twist msg;
@@ -208,9 +234,11 @@ void TrajectoryMaster::trajectoryExecutor_()
         double velX = pid_.computeCommand(deltaX, deltaTime);
         double velY = pid_.computeCommand(deltaY, deltaTime);
 
+        // rotated ccw to maintain absolute reference motion at any robot yaw angle
         msg.linear.x = velX * cos(absolute_yaw) + velY * sin(absolute_yaw);
         msg.linear.y = -velX * sin(absolute_yaw) + velY * cos(absolute_yaw);
         msg.angular.z = pid_.computeCommand(deltaTheta, deltaTime);
+        
       } old_tf_time_ = absolute_coords.header.stamp.nanosec;
 
     } else {
