@@ -4,7 +4,7 @@
   <name>mecabot_gz</name>
   <version>0.1.0</version>
   <description>
-    Runs 4WD mecanum robot in simulated environment of Gazebo Harmonic
+    A mecanum robot control package in simulated environment of Gazebo Harmonic
   </description>
   <maintainer email="aftitonf66@gmail.com">north</maintainer>
   <license>MIT</license>
@@ -16,16 +16,18 @@
   <depend>std_msgs</depend>
   <depend>rosgraph_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>nav_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>yaml-cpp</depend>
   <depend>ament_index_cpp</depend>
+  <depend>control_toolbox</depend>
 
-  <exec_depend>ros_gz_sim</exec_depend>
-  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz</exec_depend>
+  <exec_depend>xacro</exec_depend>
   <exec_depend>rviz2</exec_depend>
+  <exec_depend>ros2_control</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
