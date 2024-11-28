@@ -16,8 +16,8 @@ public:
   SimTimeForward() : Node("sim_time_forward") {
     RCLCPP_INFO(this->get_logger(), "\033[32mStarting Sim Time Forward node\033[0m");
 
-    publisher = this->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 10);
-    subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("/world/empty/clock", 10, 
+    publisher = this->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 1);
+    subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("/world/empty/clock", 1, 
       [this](const rosgraph_msgs::msg::Clock& msg) { publisher->publish(msg); });
   }
 

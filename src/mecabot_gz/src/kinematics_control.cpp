@@ -23,8 +23,8 @@ public:
     
     this->declare_parameter<float>("speed_multiplier", 1);
 
-    motion_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>("/velo_c/commands", 10);
-    command_listener_ = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 10, 
+    motion_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>("/velo_c/commands", 1);
+    command_listener_ = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 1, 
       [this](geometry_msgs::msg::Twist::UniquePtr twist) { twist_msg_ = *twist; });
 
     kinematics_worker_ = this->create_wall_timer(std::chrono::milliseconds(10), 
@@ -33,9 +33,9 @@ public:
     // controller only works from the second message published, idk why
     veloc_msg_.data = {0.0, 0.0, 0.0, 0.0};
     motion_publisher_->publish(veloc_msg_);
-    RCLCPP_INFO(this->get_logger(), "\033[33mWaking up controller\033[0m");
+    RCLCPP_INFO(this->get_logger(), "Starting kinematics...");
     rclcpp::sleep_for(std::chrono::seconds(3));
-    RCLCPP_INFO(this->get_logger(), "\033[92mController ready!\033[0m");
+    RCLCPP_INFO(this->get_logger(), "Kinematics online");
   }
   
 private:

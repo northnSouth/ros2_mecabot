@@ -24,7 +24,7 @@ public:
   OdometryWorker() : Node("odometry_worker") {
     RCLCPP_INFO(this->get_logger(), "\033[32mStarting Odometry Worker\033[0m");
   
-    joint_state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 10, 
+    joint_state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>("/joint_states", 1, 
       std::bind(&OdometryWorker::jointStatesCallback_, this, std::placeholders::_1));
 
     tf2_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);

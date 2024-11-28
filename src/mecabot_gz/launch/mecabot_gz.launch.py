@@ -1,21 +1,21 @@
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import ExecuteProcess 
-from launch.actions import TimerAction 
-from ament_index_python import get_package_share_directory 
 import os 
 import xacro 
 import math
-from launch.substitutions import FindExecutable 
+from launch import LaunchDescription, SomeEntitiesType
+from launch_ros.actions import Node
+from ament_index_python import get_package_share_directory 
+from launch.actions import ExecuteProcess, RegisterEventHandler, IncludeLaunchDescription
+from launch.events.process import ProcessIO
+from launch.event_handlers import OnProcessIO, OnProcessExit
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 package_name = 'mecabot_gz'
 
 def generate_launch_description():
 
   robot_desc = xacro.process_file(
-    os.path.join(get_package_share_directory(package_name), 
-                'robot_desc/mecabot_gz.main.xacro')
-  ).toprettyxml(indent='  ')
+    os.path.join(get_package_share_directory(package_name), 'robot_desc/mecabot_gz.main.xacro')
+    ).toprettyxml(indent='  ')
 
   robot_state_publisher = Node(
     package='robot_state_publisher',
@@ -26,20 +26,15 @@ def generate_launch_description():
     }]
   )
 
-  gazebo_as_process = ExecuteProcess(
-    cmd=[[
-      FindExecutable(name="ros2"),
-      " launch ",
-      " ros_gz_sim ",
-      " gz_sim.launch.py ",
-      " gz_args:=empty.sdf "
-    ]],
-    shell=True
+  gazebo_launch_file = os.path.join(get_package_share_directory("ros_gz_sim"),'launch/gz_sim.launch.py')
+  gazebo_launch = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(gazebo_launch_file),
+    launch_arguments={'gz_args': 'empty.sdf'}.items()
   )
 
   gazebo_unpause = ExecuteProcess(
     cmd=[[
-      FindExecutable(name="ros2"),
+      "ros2",
       " service call ",
       " /world/empty/control ",
       " ros_gz_interfaces/srv/ControlWorld ",
@@ -73,8 +68,7 @@ def generate_launch_description():
   )
 
   arena_desc = xacro.process_file(
-    os.path.join(get_package_share_directory(package_name), 
-                'world_desc/lks_arena.main.xacro')
+    os.path.join(get_package_share_directory(package_name), 'world_desc/lks_arena.main.xacro')
   ).toprettyxml(indent='  ')
 
   arena_spawner = Node(
@@ -110,7 +104,7 @@ def generate_launch_description():
 
   sim_time_forward = Node(
     package=package_name,
-    executable='sim_time_forward'
+    executable='sim_time_forward',
   )
 
   kinematics_control = Node(
@@ -134,41 +128,52 @@ def generate_launch_description():
     executable='directed_pathfinder'
   )
 
+  def on_matching_stdout(event: ProcessIO, matcher: str, result: SomeEntitiesType):
+    for line in event.text.decode().splitlines():
+      if matcher in line:
+        return result
+
   return LaunchDescription([
-    gazebo_as_process,
-    TimerAction(
-      period=1.0,
-      actions=[
-        ros_gz_bridge,
-        sim_time_forward,
-        arena_spawner
-      ]
-    ),
-    TimerAction(
-      period=2.0,
-      actions=[robot_state_publisher]
-    ),
-    TimerAction(
-      period=3.0,
-      actions=[
-        bot_spawner,
-        rviz2,
-        gazebo_unpause
-      ]
-    ),
-    TimerAction(
-      period=4.0,
-      actions=[ros2c_activate]
-    ),
-    TimerAction(
-      period=5.0,
-      actions=[
-        odometry_worker,
-        trajectory_master,
-        kinematics_control,
-        directed_map,
-        directed_pathfinder
-      ]
-    )
     
+    gazebo_launch, 
+    ros_gz_bridge, 
+    sim_time_forward,
+    robot_state_publisher,
+    directed_map,
+    gazebo_unpause,
+
+    RegisterEventHandler(
+      OnProcessExit(
+        target_action=gazebo_unpause,
+        on_exit=[arena_spawner, bot_spawner]
+      )
+    ),
+
+    RegisterEventHandler(
+      OnProcessExit(
+        target_action=bot_spawner,
+        on_exit=ros2c_activate
+      )
+    ),
+
+    RegisterEventHandler(
+      OnProcessExit(
+        target_action=ros2c_activate,
+        on_exit=kinematics_control
+      )
+    ),
+
+    RegisterEventHandler(
+      OnProcessIO(
+        target_action=kinematics_control,
+        on_stderr=lambda event: on_matching_stdout(
+          event, "Kinematics online", 
+        [
+          odometry_worker,
+          trajectory_master,
+          rviz2,
+          directed_pathfinder
+        ])
+      )
+    )
   ])

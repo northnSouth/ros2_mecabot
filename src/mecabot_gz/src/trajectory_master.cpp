@@ -16,6 +16,7 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <rclcpp/logging.hpp>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,11 +46,11 @@ public:
     this->declare_parameter<std::string>("msg_on_run", RUN);
     this->declare_parameter<std::string>("msg_on_done", DONE);
 
-    command_listener_ = this->create_subscription<std_msgs::msg::String>("/trajectory_command", 10, 
+    command_listener_ = this->create_subscription<std_msgs::msg::String>("/trajectory_command", 1, 
     std::bind(&TrajectoryMaster::commandParser_, this, std::placeholders::_1));
 
     command_status_ = this->create_publisher<std_msgs::msg::String>("/motion_status", 10);
-    kinematics_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
+    kinematics_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
 
     traj_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), 
     std::bind(&TrajectoryMaster::trajectoryExecutor_, this));
@@ -189,6 +190,13 @@ void TrajectoryMaster::commandParser_(std_msgs::msg::String::UniquePtr command)
     cmdStatPub_(RUN);
 
   } else if (cmd_args_.command == "idle") {
+    geometry_msgs::msg::Twist msg;
+    msg.linear.x = 0;
+    msg.linear.y = 0;
+    msg.angular.z = 0;
+
+    kinematics_pub_->publish(msg);
+    
     RCLCPP_INFO(this->get_logger(), "\033[43m\033[37m   Idling...   \033[0m");
     cmdStatPub_(IDLE);
   } else {
@@ -222,22 +230,25 @@ void TrajectoryMaster::trajectoryExecutor_()
       1.0 - 2.0 * (rotation.y * rotation.y + rotation.z * rotation.z));
 
     const double EPSILON = 1e-4;
-    double deltaX = point_goal_x_ - absolute_coords.transform.translation.x;
-    double deltaY = point_goal_y_ - absolute_coords.transform.translation.y;
-    double deltaTheta = point_goal_theta_ - absolute_yaw;
-    uint64_t deltaTime = absolute_coords.header.stamp.nanosec - old_tf_time_;
+    double delta_x = point_goal_x_ - absolute_coords.transform.translation.x;
+    double delta_y = point_goal_y_ - absolute_coords.transform.translation.y;
+    double delta_theta = point_goal_theta_ - absolute_yaw;
+    uint64_t delta_time = absolute_coords.header.stamp.nanosec - old_tf_time_;
   
     geometry_msgs::msg::Twist msg;
-    if (abs(deltaX) > EPSILON || abs(deltaY) > EPSILON || abs(deltaTheta) > EPSILON)
+    if (abs(delta_x) > EPSILON || abs(delta_y) > EPSILON || abs(delta_theta) > EPSILON)
     {
       if (old_tf_time_ > 0) {
-        double velX = pid_.computeCommand(deltaX, deltaTime);
-        double velY = pid_.computeCommand(deltaY, deltaTime);
+        double velX = pid_.computeCommand(delta_x, delta_time);
+        double velY = pid_.computeCommand(delta_y, delta_time);
 
         // rotated ccw to maintain absolute reference motion at any robot yaw angle
         msg.linear.x = velX * cos(absolute_yaw) + velY * sin(absolute_yaw);
         msg.linear.y = -velX * sin(absolute_yaw) + velY * cos(absolute_yaw);
-        msg.angular.z = pid_.computeCommand(deltaTheta, deltaTime);
+        msg.angular.z = pid_.computeCommand(delta_theta, delta_time);
+
+        RCLCPP_INFO(this->get_logger(), "[PID] delta_x: %f delta_y: %f delta_theta: %f",
+          delta_x, delta_y, delta_theta);
         
       } old_tf_time_ = absolute_coords.header.stamp.nanosec;
 
@@ -254,13 +265,6 @@ void TrajectoryMaster::trajectoryExecutor_()
 
     kinematics_pub_->publish(msg);
   
-  } else if (cmd_args_.command == "idle") {
-    geometry_msgs::msg::Twist msg;
-    msg.linear.x = 0;
-    msg.linear.y = 0;
-    msg.angular.z = 0;
-
-    kinematics_pub_->publish(msg);
   }
 }
 
