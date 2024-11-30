@@ -52,7 +52,7 @@ public:
     command_status_ = this->create_publisher<std_msgs::msg::String>("/motion_status", 10);
     kinematics_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
 
-    traj_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), 
+    traj_timer_ = this->create_wall_timer(std::chrono::milliseconds(10), 
     std::bind(&TrajectoryMaster::trajectoryExecutor_, this));
 
     tf2_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -238,17 +238,19 @@ void TrajectoryMaster::trajectoryExecutor_()
     geometry_msgs::msg::Twist msg;
     if (abs(delta_x) > EPSILON || abs(delta_y) > EPSILON || abs(delta_theta) > EPSILON)
     {
-      if (old_tf_time_ > 0) {
-        double velX = pid_.computeCommand(delta_x, delta_time);
-        double velY = pid_.computeCommand(delta_y, delta_time);
+      if (old_tf_time_ > 0 && delta_time > 0) {
+        double vel_x = pid_.computeCommand(delta_x, delta_time);
+        double vel_y = pid_.computeCommand(delta_y, delta_time);
 
         // rotated ccw to maintain absolute reference motion at any robot yaw angle
-        msg.linear.x = velX * cos(absolute_yaw) + velY * sin(absolute_yaw);
-        msg.linear.y = -velX * sin(absolute_yaw) + velY * cos(absolute_yaw);
+        msg.linear.x = vel_x * cos(absolute_yaw) + vel_y * sin(absolute_yaw);
+        msg.linear.y = -vel_x * sin(absolute_yaw) + vel_y * cos(absolute_yaw);
         msg.angular.z = pid_.computeCommand(delta_theta, delta_time);
 
-        RCLCPP_INFO(this->get_logger(), "[PID] delta_x: %f delta_y: %f delta_theta: %f",
-          delta_x, delta_y, delta_theta);
+        kinematics_pub_->publish(msg);
+
+        RCLCPP_INFO(this->get_logger(), "[PID] delta_x: %f delta_y: %f delta_theta: %f delta_time: %lu",
+          delta_x, delta_y, delta_theta, delta_time);
         
       } old_tf_time_ = absolute_coords.header.stamp.nanosec;
 
@@ -256,15 +258,15 @@ void TrajectoryMaster::trajectoryExecutor_()
       msg.linear.x = 0;
       msg.linear.y = 0;
       msg.angular.z = 0;
+
+      kinematics_pub_->publish(msg);
+
       cmd_args_.command = "idle";
       old_tf_time_ = 0;
 
       RCLCPP_INFO(this->get_logger(), "\033[42m\033[37m   Arrived on Target   \033[0m");
       cmdStatPub_(DONE);
     }
-
-    kinematics_pub_->publish(msg);
-  
   }
 }
 

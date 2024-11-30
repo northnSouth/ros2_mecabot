@@ -1,49 +1,64 @@
 # point_name:
 # - x
 # - y
+# - theta
 
 world:
+- 0
 - 0
 - 0
 home_entry:
 - 1.56
 - 0
+- 1.57
 center:
 - 1.56
 - 2.7
+- 1.57
 bridge:
 - 1.56
 - 4.3
+- 1.57
 quad_a:
 - 3.7
 - 2.7
+- 0
 quad_b:
 - 1.8
 - 4.3
+- 0
 double_a:
 - 0
 - 2.4
+- 3.14
 double_b:
-- 0.6
-- 3.4
+- 1
+- 4
+- 3.14
 double_c:
 - 0.6
 - 5
+- 3.14
 port:
 - 1.56
-- 7.2
+- 7.4
+- 0
 sextuple:
 - 0
-- 7.4
+- 7.6
+- 1.57
 racks_entry:
-- 2.7
-- 7.2
+- 3.5
+- 7.8
+- 0
 racks_drink:
-- 3.7
-- 6.7
+- 3.8
+- 6.8
+- 0
 racks_meal:
-- 3.7
-- 9.8
+- 3.8
+- 10
+- 0
 
 # parent/child
 relations:

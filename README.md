@@ -1,6 +1,8 @@
 # ROS2 Mecabot: A Mecanum Robot Simulation
 
-This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, directed graph map parsing, and A* pathfinding.
+This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, PID kinematics control, directed graph map based motion, and A* pathfinding.
+
+![](media/demo.gif)
 
 ## Installation
 
@@ -26,6 +28,8 @@ Add this argument if you'd like to use `clang` for the workspace:
 ```
 
 ## Usage
+
+*A few tips here, run the simulator at 0.01s step size otherwise the robot might rotate endlessly during autonomous mode, and set the `odometry_worker` node to a high priority during runtime to avoid latency in odometry calculations.*
 
 There are multiple ways to move/interact with the robot:
 

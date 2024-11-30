@@ -49,7 +49,7 @@ public:
       std::bind(&DirectedPathfinder::pathSolverCallback_, this, std::placeholders::_1));
 
     trajectory_status_listener_ = this->create_subscription<std_msgs::msg::String>("/motion_status", 10, 
-      std::bind(&DirectedPathfinder::trajStatCalllback_, this, std::placeholders::_1));
+      std::bind(&DirectedPathfinder::trajectoryExecutor_, this, std::placeholders::_1));
   }
 
 private:
@@ -77,7 +77,7 @@ private:
   );
 
   void pathSolverCallback_(std_msgs::msg::String::UniquePtr);
-  void trajStatCalllback_(std_msgs::msg::String::UniquePtr);
+  void trajectoryExecutor_(std_msgs::msg::String::UniquePtr);
 };
 
 void DirectedPathfinder::pathSolverCallback_(std_msgs::msg::String::UniquePtr msg)
@@ -147,13 +147,14 @@ void DirectedPathfinder::pathSolverCallback_(std_msgs::msg::String::UniquePtr ms
         }
       }
 
+      // get minimum edge frame
       auto minimum_edge = std::min_element(edge_frames.begin(), edge_frames.end(), 
         [](const auto& f1, const auto& f2) {
           if (f1.second.f_cost == f2.second.f_cost) {return f1.second.h_cost < f2.second.h_cost;}
           else {return f1.second.f_cost < f2.second.f_cost;}
-      });
+      }); explored_frames.insert(*minimum_edge);
 
-      explored_frames.insert(*minimum_edge);
+      // trace back path from the goal frame to start
       if (minimum_edge->second.h_cost == 0) {
         std::string path_buffer = minimum_edge->first;
         found_path = true;
@@ -189,7 +190,7 @@ void DirectedPathfinder::pathSolverCallback_(std_msgs::msg::String::UniquePtr ms
     msg.data = "point/abs/"
     + std::to_string(map_config_[shortest_path_.at(0)][0].as<float>()) 
     + ',' + std::to_string(map_config_[shortest_path_.at(0)][1].as<float>())
-    + ',' + std::to_string(0);
+    + ',' + std::to_string(map_config_[shortest_path_.at(0)][2].as<float>());
 
     trajectory_publisher_->publish(msg);
     move_to_path = true;
@@ -197,7 +198,7 @@ void DirectedPathfinder::pathSolverCallback_(std_msgs::msg::String::UniquePtr ms
   }
 }
 
-void DirectedPathfinder::trajStatCalllback_(std_msgs::msg::String::UniquePtr status)
+void DirectedPathfinder::trajectoryExecutor_(std_msgs::msg::String::UniquePtr status)
 {
   if (status->data == done_msg && move_to_path) {
     shortest_path_.erase(shortest_path_.begin());
@@ -207,7 +208,7 @@ void DirectedPathfinder::trajStatCalllback_(std_msgs::msg::String::UniquePtr sta
       msg.data = "point/abs/"
       + std::to_string(map_config_[shortest_path_.at(0)][0].as<float>()) 
       + ',' + std::to_string(map_config_[shortest_path_.at(0)][1].as<float>())
-      + ',' + std::to_string(0);
+      + ',' + std::to_string(map_config_[shortest_path_.at(0)][2].as<float>());
 
       trajectory_publisher_->publish(msg);
     } else {
