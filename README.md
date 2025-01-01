@@ -1,4 +1,4 @@
-# ROS2 Mecabot: A Mecanum Robot Simulation
+# ROS2 Mecabot: Autonomous Directed Graph Map-Based Mecanum Robot Simulation
 
 This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, PID kinematics control, directed graph map based motion, and A* pathfinding.
 
