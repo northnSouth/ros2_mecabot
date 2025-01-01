@@ -78,4 +78,4 @@ These are references and algorithm explanations used in the project.
 
 * Rotary Encoder Based Odometry [Youtube: Odometry 101 for FIRST Tech Challenge Robots by DrBatanga](https://youtu.be/Av9ZMjS--gY?si=f_gCDkorZMCKaEdP) <br>
 * Locomotion Kinematics [Youtube: How to Use Mecanum Wheels in 200 Seconds by Gavin Ford](https://youtu.be/gnSW2QpkGXQ?si=ZigLoyJ6pj0cPHlQ) <br>
-* A* Pathfinding Algorithm [Youtube: A* Pathfinding (E01: algorithm explanation)](https://youtu.be/-L-WgKMFuhE?si=UXPzRJ-5tqCyta3h)
+* A* Pathfinding Algorithm [Youtube: A* Pathfinding (E01: algorithm explanation) by Sebastian Lague](https://youtu.be/-L-WgKMFuhE?si=UXPzRJ-5tqCyta3h)
