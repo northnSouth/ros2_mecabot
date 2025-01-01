@@ -4,3 +4,4 @@ log
 .vscode
 src/mecabot_gz/launch/__pycache__
 *.cache
+.swp
