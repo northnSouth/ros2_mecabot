@@ -35,7 +35,7 @@ There are multiple ways to move/interact with the robot:
 
 * Using `/path_command` topic to have the robot find the shortest path and move from one landmark/frame in the map to another.
 * Using `/trajectory_command` topic to move the robot in a certain simple trajectory in either absolute or relative coordinate reference.
-* Publishing directly to `/cmd_vel` to control the robot without in an open-loop fashion.
+* Publishing directly to `/cmd_vel` to control the robot with an open-loop fashion.
 * To change speed, set `speed_multiplier` parameter of the `kinematics_control` node to a desired value. Default is 1.
 
 ### `/path_command`
