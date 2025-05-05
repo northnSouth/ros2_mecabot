@@ -58,7 +58,7 @@ public:
     tf2_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     tf2_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf2_buffer_);
 
-    pid_.initPid(0, 0, 0, 0, 0, false);
+    pid_.initialize(0, 0, 0, 0, 0, false);
   }
 
 private:
@@ -177,7 +177,7 @@ void TrajectoryMaster::commandParser_(std_msgs::msg::String::UniquePtr command)
     this->get_parameter("pid_kd", d);
     this->get_parameter("pid_i_max", i_max);
     this->get_parameter("pid_i_min", i_min); 
-    pid_.setGains(p, i, d, i_max, i_min);
+    pid_.set_gains(p, i, d, i_max, i_min);
 
     RCLCPP_INFO(this->get_logger(), 
       "\033[43m\033[37m   In Motion   \033[0m\n[Point to Point] ref: %s x: %f y: %f yaw: %f", 
@@ -233,19 +233,19 @@ void TrajectoryMaster::trajectoryExecutor_()
     double delta_x = point_goal_x_ - absolute_coords.transform.translation.x;
     double delta_y = point_goal_y_ - absolute_coords.transform.translation.y;
     double delta_theta = point_goal_theta_ - absolute_yaw;
-    uint64_t delta_time = absolute_coords.header.stamp.nanosec - old_tf_time_;
+    long delta_time = absolute_coords.header.stamp.nanosec - old_tf_time_;
   
     geometry_msgs::msg::Twist msg;
     if (abs(delta_x) > EPSILON || abs(delta_y) > EPSILON || abs(delta_theta) > EPSILON)
     {
       if (old_tf_time_ > 0 && delta_time > 0) {
-        double vel_x = pid_.computeCommand(delta_x, delta_time);
-        double vel_y = pid_.computeCommand(delta_y, delta_time);
+        double vel_x = pid_.compute_command(delta_x, delta_time);
+        double vel_y = pid_.compute_command(delta_y, delta_time);
 
         // rotated ccw to maintain absolute reference motion at any robot yaw angle
         msg.linear.x = vel_x * cos(absolute_yaw) + vel_y * sin(absolute_yaw);
         msg.linear.y = -vel_x * sin(absolute_yaw) + vel_y * cos(absolute_yaw);
-        msg.angular.z = pid_.computeCommand(delta_theta, delta_time);
+        msg.angular.z = pid_.compute_command(delta_theta, delta_time);
 
         kinematics_pub_->publish(msg);
 
