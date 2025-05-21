@@ -91,9 +91,13 @@ def generate_launch_description():
     ]
   )
 
+  # Rviz2
+  rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz2', 'main_view.rviz')
   rviz2 = Node(
-    package='rviz2',
-    executable='rviz2'
+      package='rviz2',
+      executable='rviz2',
+      output='screen',
+      arguments=['-d', rviz_config_file],
   )
 
   trajectory_master = Node(

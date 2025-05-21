@@ -2,8 +2,6 @@
 
 This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, PID kinematics control, directed graph map based motion, and A* pathfinding.
 
-![](media/demo.gif)
-
 ## Installation
 
 Make sure you have installed [ROS2 Jazzy Jalisco](https://docs.ros.org/en/jazzy/index.html), [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/), common C++ and Python toolchain and the dependencies listed in `package.xml` in your environment.

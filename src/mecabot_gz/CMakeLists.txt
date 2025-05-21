@@ -120,4 +120,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Build rviz config
+install(DIRECTORY
+  ../../rviz2
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
