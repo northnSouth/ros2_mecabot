@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="jetauto_ros2_control">
+        <ros2_control name="jetauto_hardware_interface" type="system">
+            <hardware>
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </hardware>
+
+            <!-- 定义轮子 注意，在gazebo中速度属性只能使用velocity-->
+            <!--左侧前轮-->
+            <joint name="wheel_left_front_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param><!-- 速度大小范围 -->
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <!--右侧后轮-->
+            <joint name="wheel_left_back_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+
+            <!--右侧前轮-->
+            <joint name="wheel_right_front_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <!--右侧后轮-->
+            <joint name="wheel_right_back_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+
+            <!-- IMU传感器 -->
+            <sensor name="imu_sensor">
+                <state_interface name="orientation.x"/>
+                <state_interface name="orientation.y"/>
+                <state_interface name="orientation.z"/>
+                <state_interface name="orientation.w"/>
+                <state_interface name="angular_velocity.x"/>
+                <state_interface name="angular_velocity.y"/>
+                <state_interface name="angular_velocity.z"/>
+                <state_interface name="linear_acceleration.x"/>
+                <state_interface name="linear_acceleration.y"/>
+                <state_interface name="linear_acceleration.z"/>
+            </sensor>
+        </ros2_control>
+        
+        <!-- Gazebo ros2_control插件 -->
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find mecabot_gz)/config/jetauto_controllers.yaml</parameters>
+                <robot_param>robot_description</robot_param>
+                <robot_param_node>robot_state_publisher</robot_param_node>
+                <ros>
+                    <remapping>/jetauto_base_controller/reference_unstamped:=/cmd_vel</remapping>
+                    <remapping>/jetauto_base_controller/odometry:=/odom</remapping>
+                </ros>
+            </plugin>
+        </gazebo>
+    </xacro:macro>
+</robot>

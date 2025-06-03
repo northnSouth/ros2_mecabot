@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="depth_camera" xmlns:xacro="http://ros.org/wiki/xacro" >
+  <xacro:property name="M_PI"   value="3.1415926535897931"/>
+  <link
+    name="depth_cam_link">
+    <inertial>
+      <origin
+        xyz="0.000254340878565573 0.00268031633059271 -0.00569075323067275"
+        rpy="0 0 0" />
+      <mass
+        value="0.227980406655671" />
+      <inertia
+        ixx="4.8473190489023E-05"
+        ixy="8.29314946303069E-09"
+        ixz="-5.0952649884666E-09"
+        iyy="0.000408820027771005"
+        iyz="-1.36580074559918E-07"
+        izz="0.000429553467348926" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 1.57" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/depth_camera_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/depth_camera_link_collision.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="joint1"
+    type="fixed">
+    <origin
+      xyz="0.0288581470059471 0 0.202093286991617"
+      rpy="-0.000131510931722419 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="depth_cam_link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
+  <link name="depth_cam_frame" />
+
+
+  <joint
+    name="depth_cam_joint"
+    type="fixed">
+    <parent link="depth_cam_link" />
+    <child link="depth_cam_frame" />
+    <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2} "/>
+  </joint>
+  
+  <!-- 包含深度相机的Gazebo配置 -->
+  <xacro:include filename="$(find mecabot_gz)/urdf/plugins/gazebo_depth_camera.xacro"/>
+</robot>

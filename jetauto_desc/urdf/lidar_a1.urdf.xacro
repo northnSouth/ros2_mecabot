@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="lidar" xmlns:xacro="http://ros.org/wiki/xacro" >
+  <xacro:property name="M_PI" value="3.1415926535897931"/>
+  
+  <!-- 激光雷达主体链接 -->
+  <link name="lidar_link">
+    <inertial>
+      <origin
+        xyz="-0.0157049024536227 0.000340793431659825 -0.0214732100882973"
+        rpy="0 0 0" />
+      <mass
+        value="0.0522535578752524" />
+      <inertia
+        ixx="1.4542908499666E-05"
+        ixy="4.8193721668021E-08"
+        ixz="2.30575406031324E-07"
+        iyy="1.85618648837978E-05"
+        iyz="-1.29750110413905E-08"
+        izz="3.10574357987674E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/lidar_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/lidar_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <!-- 激光雷达与底盘的连接关节 -->
+  <joint
+    name="lidar_joint"
+    type="fixed">
+    <origin
+      xyz="0.0959394346777203 -1.03974386779226E-05 0.128396206697751"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lidar_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  
+  <!-- 激光雷达仿真框架 -->
+  <link name="lidar_sim_frame" />
+  <joint
+    name="lidar_sim_frame_joint"
+    type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="lidar_link" />
+    <child link="lidar_sim_frame" />
+  </joint>
+  
+  <!-- 包含定义了 lidar_sensor_definition 宏的 XACRO 文件 -->
+  <xacro:include filename="$(find mecabot_gz)/urdf/plugins/gazebo_lidar.xacro"/>
+
+  <!-- 调用 lidar_sensor_definition 宏并传递参数 -->
+  <!-- <xacro:lidar_sensor_definition parent_link_name="lidar_sim_frame" /> -->
+  
+</robot>

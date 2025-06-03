@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>  <!-- XML文件声明 -->
+<!-- <robot name="jetauto" xmlns:xacro="http://ros.org/wiki/xacro">  定义机器人模型，使用xacro命名空间 -->
+<robot name="jetauto" xmlns:xacro="http://ros.org/wiki/xacro" xmlns:ignition="http://gazebosim.org/schema/"> 
+<!-- <robot name="jetauto" xmlns:xacro="http://ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema/"> -->
+    
+    <!-- 定义机器人名称参数 -->
+    <xacro:arg name="robot_name" default="jetauto"/>
+
+    <!-- 包含基础配置文件 - 仅包含一次材质定义 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/materials.xacro"/>     <!-- 包含材质定义文件 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/inertial_matrix.xacro"/> <!-- 包含惯性矩阵定义文件 -->
+
+    <!-- 定义M_PI变量，确保所有引入的文件可用 -->
+    <xacro:property name="M_PI" value="3.1415926535897931" />
+    <xacro:property name="camera_x" value="0.120" />
+
+    <!-- 包含IMU配置 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/imu.urdf.xacro"/>     <!-- 包含IMU传感器配置文件 -->
+
+    <!-- 激光雷达配置部分 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/lidar_a1.urdf.xacro"/> <!-- 包含A1激光雷达配置 -->
+
+    <!-- JetAuto标准版配置 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/depth_camera.urdf.xacro"/> <!-- 包含深度相机配置 -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/jetauto_car.urdf.xacro"/> <!-- 包含标准版底盘配置 -->
+    
+
+    <!-- 加载参数 -->
+    <xacro:arg name="use_sim_time" default="true"/>
+    <xacro:arg name="mecanum_control" default="true"/>
+    <xacro:arg name="use_gazebo" default="true"/>
+    <!-- Include and instantiate ros2_control -->
+    <xacro:include filename="$(find mecabot_gz)/urdf/ros2_control.xacro" />
+    <xacro:jetauto_ros2_control /> 
+    
+    <!-- 应用Gazebo材质映射 -->
+    <!-- <xacro:gazebo_material_blue reference="base_link"/>
+    <xacro:gazebo_material_black reference="wheel_right_front_link"/>
+    <xacro:gazebo_material_black reference="wheel_left_front_link"/>
+    <xacro:gazebo_material_black reference="wheel_right_back_link"/>
+    <xacro:gazebo_material_black reference="wheel_left_back_link"/>
+    <xacro:gazebo_material_black reference="back_shell_link"/>
+    <xacro:gazebo_material_black reference="mic_link"/>
+    <xacro:gazebo_material_black reference="lidar_link"/>
+    <xacro:gazebo_material_black reference="depth_cam_link"/> -->
+
+    <gazebo reference='wheel_left_front_link'>    
+        <collision>
+            <surface>
+            <friction>
+                <ode>
+                <mu>1.0</mu>
+                <mu2>0.0</mu2>
+                <fdir1 ignition:expressed_in="base_link">1 -1 0</fdir1>
+                </ode>
+            </friction>
+            </surface>
+        </collision>
+    </gazebo>
+
+    <gazebo reference='wheel_left_back_link'>
+        <collision>
+            <surface>
+            <friction>
+                <ode>
+                <mu>1.0</mu>
+                <mu2>0.0</mu2>
+                <fdir1 ignition:expressed_in="base_link">1 1 0</fdir1>
+                </ode>
+            </friction>
+            </surface>
+        </collision>
+    </gazebo>
+
+    <gazebo reference='wheel_right_front_link'>
+        <collision>
+            <surface>
+            <friction>
+                <ode>
+                <mu>1.0</mu>
+                <mu2>0.0</mu2>
+                <fdir1 ignition:expressed_in="base_link">1 1 0</fdir1>
+                </ode>
+            </friction>
+            </surface>
+        </collision>
+    </gazebo>
+
+    <gazebo reference='wheel_right_back_link'>
+        <collision>
+            <surface>
+            <friction>
+                <ode>
+                <mu>1.0</mu>
+                <mu2>0.0</mu2>
+                <fdir1 ignition:expressed_in="base_link">1 -1 0</fdir1>
+                </ode>
+            </friction>
+            </surface>
+        </collision>
+    </gazebo>
+
+</robot>
+
+

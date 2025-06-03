@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <gazebo reference="depth_cam_link">
+        <sensor name="depth_camera" type="depth_camera">
+            <ignition_frame_id>depth_cam_link</ignition_frame_id><!--为什么要是depth_cam_link？而不是depth_cam_frame -->
+            <always_on>true</always_on> 
+            <update_rate>30</update_rate> 
+            <visualize>true</visualize>   <!-- 是否在 Gazebo GUI 中可视化传感器的视锥或光线 -->
+            <topic>/model/$(arg robot_name)/depth_camera</topic>
+            <camera_info_topic>/model/$(arg robot_name)/depth_camera/camera_info</camera_info_topic>
+            <pose>0 0 0 0 0 0</pose>
+            <camera>
+                <horizontal_fov>1.5009831567</horizontal_fov> <!-- 水平视场角 (弧度)，约 86 度 -->
+                <image>
+                    <width>800</width>  <!-- 图像宽度 (像素) -->
+                    <height>600</height> <!-- 图像高度 (像素) -->
+                </image>
+                <clip>
+                    <near>0.1</near> <!-- 最小深度感知距离 (米) -->
+                    <far>10.0</far>  <!-- 最大深度感知距离 (米) -->
+                </clip>
+                <noise>
+                    <type>gaussian</type> <!-- 噪声类型：高斯噪声 -->
+                    <mean>0.0</mean>     <!-- 噪声均值 -->
+                    <stddev>0.007</stddev><!-- 噪声标准差 (米) -->
+                </noise>
+                <distortion>
+                    <k1>0.0</k1> <k2>0.0</k2> <k3>0.0</k3>
+                    <p1>0.0</p1> <p2>0.0</p2>
+                    <center>0.5 0.5</center>
+                </distortion>
+            </camera>
+        </sensor>
+    </gazebo>
+</robot>

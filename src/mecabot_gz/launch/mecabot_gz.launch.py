@@ -14,7 +14,7 @@ package_name = 'mecabot_gz'
 def generate_launch_description():
 
   robot_desc = xacro.process_file(
-    os.path.join(get_package_share_directory(package_name), 'robot_desc/mecabot_gz.main.xacro')
+    os.path.join(get_package_share_directory(package_name), 'urdf/jetauto.xacro')
     ).toprettyxml(indent='  ')
 
   robot_state_publisher = Node(
@@ -48,7 +48,7 @@ def generate_launch_description():
     executable="spawner",
     arguments=
     [
-      "JSB",
+      "joint_state_broadcaster",
       "velo_c"
     ]
   )
@@ -143,7 +143,7 @@ def generate_launch_description():
     ros_gz_bridge, 
     sim_time_forward,
     robot_state_publisher,
-    directed_map,
+    # directed_map,
     gazebo_unpause,
 
     RegisterEventHandler(
@@ -167,17 +167,17 @@ def generate_launch_description():
       )
     ),
 
-    RegisterEventHandler(
-      OnProcessIO(
-        target_action=kinematics_control,
-        on_stderr=lambda event: on_matching_stdout(
-          event, "Kinematics online", 
-        [
-          odometry_worker,
-          trajectory_master,
-          rviz2,
-          directed_pathfinder
-        ])
-      )
-    )
+    # RegisterEventHandler(
+    #   OnProcessIO(
+    #     target_action=kinematics_control,
+    #     on_stderr=lambda event: on_matching_stdout(
+    #       event, "Kinematics online", 
+    #     [
+    #       odometry_worker,
+    #       trajectory_master,
+    #       rviz2,
+    #       directed_pathfinder
+    #     ])
+    #   )
+    # )
   ])

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="imu" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931"/>
+
+  <!-- IMU链接 -->
+  <link name="imu_link"/>
+  
+  <!-- IMU与底盘的连接关节，注意旋转方向 -->
+  <joint
+    name="imu_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 ${0.025 - 0.0295 + 0.0965/2 + 0.0678410821576746}"
+      rpy="0 0 ${-M_PI/2}" /> <!-- 绕 Z 轴旋转-90度 -->
+    <parent
+      link="base_link"/>
+    <child
+      link="imu_link"/>
+  </joint>
+  
+  <!-- 包含IMU的Gazebo-->
+  <xacro:include filename="$(find mecabot_gz)/urdf/plugins/gazebo_imu.xacro"/>
+
+  <!-- 调用宏，将传感器附加到 imu_link
+  <xacro:imu_sensor_definition parent_link_name="imu_link" /> -->
+
+</robot>

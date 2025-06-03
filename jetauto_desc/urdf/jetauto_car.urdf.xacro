@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="jetauto" xmlns:xacro="http://ros.org/wiki/xacro" >
+  <xacro:property name="M_PI"               value="3.1415926535897931"/>
+  <xacro:property name="base_link_mass"     value="1.6" /> 
+  <xacro:property name="base_link_w"        value="0.297"/>
+  <xacro:property name="base_link_h"        value="0.145"/>
+  <xacro:property name="base_link_d"        value="0.11255"/>
+
+  <xacro:property name="wheel_link_mass"    value="0.1" />
+  <xacro:property name="wheel_link_radius"  value="0.049"/>
+  <xacro:property name="wheel_link_length"  value="0.04167"/>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.005" rpy="0 0 0"/>
+  </joint>
+
+  <link
+    name="base_link">
+    <xacro:box_inertial m="${base_link_mass}" w="${base_link_w}" h="${base_link_h}" d="${base_link_d}"/>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/base_link.stl" />
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="${base_link_w/2.0 - 0.14810} 0 ${0.126437/2 + 0.02362364}"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="${base_link_w} ${base_link_h} ${base_link_d}" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="back_shell_link">
+    <inertial>
+      <origin
+        xyz="-1.22838595456587E-05 0.00218574826309681 -0.0500522861933898"
+        rpy="0 0 0" />
+      <mass
+        value="0.0663478534899862" />
+      <inertia
+        ixx="5.65277934912267E-05"
+        ixy="-5.13394387877366E-11"
+        ixz="-4.07561372273553E-11"
+        iyy="4.33740893441632E-05"
+        iyz="-5.43059341238134E-06"
+        izz="6.86642544694324E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/back_shell_link.stl" />
+      </geometry>
+      <material name="black">
+      </material>
+    </visual>
+    <!--<collision>-->
+      <!--<origin-->
+        <!--xyz="0 0 0"-->
+        <!--rpy="0 0 0" />-->
+      <!--<geometry>-->
+        <!--<mesh-->
+          <!--filename="package://jetauto_description/meshes/back_shell_link.stl" />-->
+      <!--</geometry>-->
+    <!--</collision>-->
+  </link>
+  <joint
+    name="back_shell_joint"
+    type="fixed">
+    <origin
+      xyz="-0.076481 0 0.082796"
+      rpy="-3.1416 0 1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="back_shell_link" />
+  </joint>
+   <link
+    name="wheel_right_front_link">
+    <xacro:sphere_inertial m="${wheel_link_mass}" r="${wheel_link_radius}" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5708 1.5708 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/wheel_right_front_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${wheel_link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_right_front_joint"
+    type="continuous">
+    <origin
+      xyz="0.097397 -0.086125 0.04508" />
+    <parent
+      link="base_link" />
+    <axis xyz="0 1 0"/>
+    <child
+      link="wheel_right_front_link" />
+    <axis xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_left_front_link">
+    <xacro:sphere_inertial m="${wheel_link_mass}" r="${wheel_link_radius}" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5708 1.5708 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/wheel_left_front_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${wheel_link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_left_front_joint"
+    type="continuous">
+    <origin
+      xyz="0.097397 0.086125 0.04508" />
+    <parent
+      link="base_link" />
+    <axis xyz="0 1 0"/>
+    <child
+      link="wheel_left_front_link" />
+    <axis xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_right_back_link">
+    <xacro:sphere_inertial m="${wheel_link_mass}" r="${wheel_link_radius}" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5708 1.5708 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/wheel_right_back_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${wheel_link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_right_back_joint"
+    type="continuous">
+    <origin
+      xyz="-0.097397 -0.086125 0.04508" />
+    <parent
+      link="base_link" />
+    <axis xyz="0 1 0"/>
+    <child
+      link="wheel_right_back_link" />
+    <axis xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_left_back_link">
+    <xacro:sphere_inertial m="${wheel_link_mass}" r="${wheel_link_radius}" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5708 1.5708 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/wheel_left_back_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${wheel_link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_left_back_joint"
+    type="continuous">
+    <origin
+      xyz="-0.097397 0.086125 0.04508" />
+    <parent
+      link="base_link" />
+    <axis xyz="0 1 0"/>
+    <child
+      link="wheel_left_back_link" />
+    <axis xyz="0 0 -1" />
+  </joint>
+  <link
+    name="mic_link">
+    <inertial>
+      <origin
+        xyz="7.37972827624667E-07 0.000380767498086923 -0.0010743560446495"
+        rpy="0 0 0" />
+      <mass
+        value="0.0234232570822793" />
+      <inertia
+        ixx="1.59705800233789E-05"
+        ixy="-5.64325349754072E-11"
+        ixz="8.96027229707658E-11"
+        iyy="2.23652963143563E-05"
+        iyz="6.01204669252721E-08"
+        izz="3.74624298483869E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/mic_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <!--<collision>-->
+      <!--<origin-->
+        <!--xyz="0 0 0"-->
+        <!--rpy="0 0 0" />-->
+      <!--<geometry>-->
+        <!--<mesh-->
+          <!--filename="package://jetauto_description/meshes/mic_link.stl" />-->
+      <!--</geometry>-->
+    <!--</collision>-->
+  </link>
+  <joint
+    name="mic_joint"
+    type="fixed">
+    <origin
+      xyz="-0.079228 -1.5532E-05 0.15861"
+      rpy="0 0 1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="mic_link" />
+  </joint>
+  <link
+    name="speaker_link">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mecabot_gz/meshes/speaker_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <!--<collision>-->
+      <!--<origin-->
+        <!--xyz="0 0 0"-->
+        <!--rpy="0 0 0" />-->
+      <!--<geometry>-->
+        <!--<mesh-->
+          <!--filename="package://jetauto_description/meshes/speaker_link.stl" />-->
+      <!--</geometry>-->
+    <!--</collision>-->
+  </link>
+  <joint
+    name="speaker_joint"
+    type="fixed">
+    <origin
+      xyz="-0.130292759618243 0 0.0549589364206024"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="speaker_link" />
+  </joint>
+</robot>

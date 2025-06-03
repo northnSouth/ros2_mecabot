@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+    </material>
+
+    <material name="green">
+        <color rgba="0.4 0.9 0.4 1.0"/>
+    </material>
+
+    <material name="gray">
+        <color rgba="0.7 0.7 0.7 1.0"/>
+    </material>
+
+    <material name="darkgray">
+        <color rgba="0.3 0.3 0.3 1.0"/>
+    </material>
+
+    <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0"/>
+    </material>
+
+    <material name="yellow">
+        <color rgba="0.8 0.8 0.0 1.0"/>
+    </material>
+    
+    <!-- Gazebo材质映射 - 修正为正确的映射方式 -->
+    <xacro:macro name="gazebo_material_black" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Black</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_blue" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_green" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Green</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_grey" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Grey</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_darkgrey" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_red" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_white" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/White</material>
+        </gazebo>
+    </xacro:macro>
+    
+    <xacro:macro name="gazebo_material_yellow" params="reference">
+        <gazebo reference="${reference}">
+            <material>Gazebo/Yellow</material>
+        </gazebo>
+    </xacro:macro>
+</robot>

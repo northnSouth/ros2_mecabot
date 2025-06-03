@@ -126,4 +126,16 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Build world models
+install(DIRECTORY
+  ../../jetauto_desc/urdf
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Build world models
+install(DIRECTORY
+  ../../jetauto_desc/meshes
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
