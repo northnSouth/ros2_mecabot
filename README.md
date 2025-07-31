@@ -1,6 +1,6 @@
-# ROS2 Mecabot: Autonomous Directed Graph Map-Based Mecanum Robot Simulation
+# ROS2 Mecabot: Autonomous Topological Map Navigated Mecanum Robot Simulation
 
-This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, PID kinematics control, directed graph map based motion, and A* pathfinding.
+This is a [ROS2 Jazzy](https://docs.ros.org/en/jazzy/index.html) based mecanum drive robot project simulated in [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/getstarted/) with features such as rotary encoder based odometry, PID kinematics control, topological map navigation, and A* pathfinding.
 
 https://github.com/user-attachments/assets/3fea155b-344b-49d8-97cd-11f392b58dcf
 
